@@ -1,0 +1,7 @@
+venv
+.idea
+__pycache__
+.env
+*.session
+unknown_errors.txt
+os
