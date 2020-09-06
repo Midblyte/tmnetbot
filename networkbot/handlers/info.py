@@ -1,10 +1,9 @@
-from typing import Dict
+from typing import Dict, Callable
 
-from pymongo.cursor import Cursor
 from pyrogram import filters
-from pyrogram.types import Message
+from pyrogram.types import Message, InlineKeyboardMarkup as Keyboard, InlineKeyboardButton as Button, CallbackQuery
 
-from ..helpers import format_documents_list, can_send_icon
+from ..helpers import format_documents_list, can_send_icon, get_documents_range, fmt_time
 from ..mongo import channels, options
 from ..telegram import telegram
 
@@ -23,19 +22,55 @@ channels_admin_filter: Callable[[int], Dict] = lambda uid: {"administrators": {"
 
 @telegram.on_message(filters.private & filters.command(["info"]))
 async def info(_, message: Message):
-    collection_filter = {"administrators": {"$in": [message.from_user.id]}}
-    admin_of_channels: Cursor = channels.find(collection_filter)
+    collection_filter: Dict = channels_admin_filter(message.from_user.id)
     count = channels.count_documents(collection_filter)
 
     if count == 0:
         return await message.reply_text(not_an_admin)
 
-    fmt_channels = format_documents_list(admin_of_channels, _get_info)
-
-    await message.reply_text(admin_of_these_channels.format(channels=fmt_channels))
+    await _navigate(await message.reply_text(loading_channels), message.from_user.id)
 
 
-def _get_info(channel: Dict) -> str:
-    return f"""\
-{can_send_icon(channel.get('last_send_time'), channel.get('delta'), channel.get("scheduling.in_queue"), options('channels_delta'))}
-Canale: <b>{channel.get('name')}</b>"""
+@telegram.on_callback_query(filters.create(lambda _, __, cq: cq.data.startswith(f"{channels.name}_admins_nav_")))
+async def get_channels_info_page(_, callback_query: CallbackQuery):
+    user_id, offset = map(int, callback_query.data.rsplit('_', 2)[1:])
+
+    await callback_query.answer()
+
+    await _navigate(callback_query.message, user_id, offset)
+
+
+@telegram.on_callback_query(filters.create(lambda _, __, cq: cq.data.startswith(f"{channels.name}_rm_")))
+async def get_channels_info_page(_, callback_query: CallbackQuery):
+    user_id, channel_id, offset = map(int, callback_query.data.rsplit('_', 3)[1:])
+
+    channels.find_one_and_update({"channel_id": channel_id, **channels_admin_filter(user_id)},
+                                 {"$set": {"scheduling": {"in_queue": False}}})
+
+    await callback_query.answer()
+
+    await _navigate(callback_query.message, user_id, offset)
+
+
+async def _navigate(message: Message, user_id: int, offset=0):
+    documents, keyboard = get_documents_range(channels, offset, filters=channels_admin_filter(user_id),
+                                              nav=lambda c, o: f"{c}_admins_nav_{user_id}_{o}")
+
+    if not keyboard:
+        keyboard = Keyboard([])
+
+    for d in documents:
+        if d.get('scheduling').get('in_queue') is True:
+            keyboard.inline_keyboard.append([Button(d.get("name"),
+                                                    f"{channels.name}_rm_{user_id}_{d.get('channel_id')}_{offset}")])
+
+    if len(keyboard.inline_keyboard) == 0:
+        keyboard = None
+
+    fmt_channels = format_documents_list(documents.rewind(), lambda c: f"""\
+{can_send_icon(c.get('last_send'), c.get('delta'), c.get('scheduling').get('in_queue'), options('channels_delta'))} \
+{c.get('name')}
+ID: {c.get('channel_id')}
+Dal: {fmt_time(c.get('_id').generation_time)}""")
+
+    await message.edit_text(admin_of_these_channels.format(channels=fmt_channels), reply_markup=keyboard)
