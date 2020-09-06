@@ -58,10 +58,10 @@ def localize_minutes(minutes: int, timezone=pytz.timezone("Europe/Rome")):
         return (minutes_in_a_day + value) % minutes_in_a_day
 
 
-def can_send_icon(last_send_time: datetime, delta_time: int, in_queue: bool, default: int):
+def can_send_icon(last_send_time: datetime, delta_time: int, in_queue: bool, default_delta: int):
     now: datetime = datetime.utcnow()
     last_send = last_send_time or datetime.min
-    delta = timedelta(seconds=delta_time or default)
+    delta = timedelta(seconds=delta_time or default_delta)
 
     if in_queue:
         return "⏳"
