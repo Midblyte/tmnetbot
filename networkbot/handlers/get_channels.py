@@ -23,7 +23,7 @@ go_back = "\
 
 @telegram.on_message(filters.private & filters.command(["channels", "canali"]) & custom_filters.is_admin)
 async def get_channels(_, message: Message):
-    if channels.count_documents({}) == 0:
+    if channels.estimated_document_count() == 0:
         return await message.reply_text(channels_zero)
 
     await _navigate(await message.reply_text(loading_channels))
