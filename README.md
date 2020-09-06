@@ -69,7 +69,7 @@ Useful for Telegram networks which do have a "best posts of the network" channel
 
 # Limitations
 
-The entire bot has been coded in the the english language as my personal habitude.
+The entire bot has been coded in the the english language as my personal habit.
 However, since it was initially a private commitment, it has been designed to be used by Italians only.
 Every text is written in the Italian language, every date is therefore converted in CET/CEST (it depends on DST).
 
