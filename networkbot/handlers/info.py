@@ -15,6 +15,11 @@ Non sei admin di alcun canale"
 admin_of_these_channels = "\
 Canali di cui sei admin:\n\n{channels}"
 
+loading_channels = "\
+Caricamento canali di cui sei amministratore..."
+
+channels_admin_filter: Callable[[int], Dict] = lambda uid: {"administrators": {"$in": [uid]}}
+
 
 @telegram.on_message(filters.private & filters.command(["info"]))
 async def info(_, message: Message):
