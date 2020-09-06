@@ -44,7 +44,7 @@ Get it from https://mongodb.com
 
     MONGO_URL
     
-Let it be anything you want
+Let it be anything you want (optional, defaults to `tmnetbot`)
 
     NETWORK_SHORT_NAME
 
