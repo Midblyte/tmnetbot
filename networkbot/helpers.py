@@ -22,10 +22,16 @@ def fmt_time(dt, fmt="%d/%m/%Y %H:%M:%S", timezone="Europe/Rome", never="mai") -
     return (pytz.utc.localize(dt) if dt.tzinfo is None else dt).astimezone(pytz.timezone(timezone)).strftime(fmt)
 
 
-def get_documents_range(collection: Collection, offset=0, maximum_per_page=10) -> Tuple[Cursor, Optional[
-                                                                                            InlineKeyboardMarkup]]:
-    documents: Cursor = collection.find({}).skip(offset*maximum_per_page).limit(maximum_per_page)
-    documents_number = collection.count_documents({})
+def get_documents_range(collection: Collection, offset=0, maximum_per_page=10, filters=None,
+                        nav: Callable[[Collection, int], str] = None) -> Tuple[Cursor, Optional[InlineKeyboardMarkup]]:
+    if filters is None:
+        filters = {}
+
+    if nav is None:
+        nav = lambda c, o: f"{c}_nav_{o}"
+
+    documents: Cursor = collection.find(filters).skip(offset*maximum_per_page).limit(maximum_per_page)
+    documents_number = collection.count_documents(filters)
 
     if documents_number <= maximum_per_page and offset == 0:
         return documents, None
@@ -33,10 +39,10 @@ def get_documents_range(collection: Collection, offset=0, maximum_per_page=10) -
     nav_buttons: List[InlineKeyboardButton] = []
 
     if offset > 0:
-        nav_buttons.append(InlineKeyboardButton("«", callback_data=f"{collection.name}_nav_{offset-1}"))
+        nav_buttons.append(InlineKeyboardButton("«", callback_data=nav(collection.name, offset-1)))
 
     if documents_number > maximum_per_page * (offset + 1):
-        nav_buttons.append(InlineKeyboardButton("»", callback_data=f"{collection.name}_nav_{offset+1}"))
+        nav_buttons.append(InlineKeyboardButton("»", callback_data=nav(collection.name, offset+1)))
 
     return documents, InlineKeyboardMarkup([nav_buttons])
 
