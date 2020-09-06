@@ -32,7 +32,7 @@ class PeriodicMongoTask:
             ("_id", pymongo.ASCENDING),
             ("scheduling.time_to", pymongo.ASCENDING)
         ]
-        to_be_sent: Optional[Dict] = channels.find(collection_filter, sort=collection_sort)
+        to_be_sent: Optional[Dict] = channels.find_one(collection_filter, sort=collection_sort)
         documents_number = channels.count_documents(collection_filter)
 
         if documents_number == 0:
