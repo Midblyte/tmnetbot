@@ -3,5 +3,6 @@ venv
 __pycache__
 .env
 *.session
+*.session-journal
 unknown_errors.txt
 os
