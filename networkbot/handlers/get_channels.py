@@ -61,11 +61,10 @@ async def _navigate(message: Message, offset=0):
         InlineKeyboardButton(d.get("name"), f"{channels.name}_info_{d.get('channel_id')}_{offset}")
         for d in documents), 2))
 
-    fmt_channels = format_documents_list(documents.rewind(), lambda c:
-        f"{can_send_icon(c.get('last_send'), c.get('delta'), c.get('scheduling').get('in_queue'), options('channels_delta'))}"
-        f"{c.get('name')}\n"
-        f"ID: {c.get('channel_id')}\n"
-        f"Dal: {fmt_time(c.get('_id').generation_time)}"
-    )
+    fmt_channels = format_documents_list(documents.rewind(), lambda c: f"""\
+{can_send_icon(c.get('last_send'), c.get('delta'), c.get('scheduling').get('in_queue'), options('channels_delta'))} \
+{c.get('name')}
+ID: {c.get('channel_id')}
+Dal: {fmt_time(c.get('_id').generation_time)}""")
 
     await message.edit_text(channels_list.format(channels=fmt_channels), reply_markup=keyboard)
