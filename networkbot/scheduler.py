@@ -62,7 +62,7 @@ class PeriodicMongoTask:
         channel_username, msg_id = sent_message.chat.username, sent_message.message_id
         reply_markup = None
         if channel_username:
-            reply_markup = Keyboard([[Button(go_to_the_message, f"https://t.me/{channel_username}/{msg_id}")]])
+            reply_markup = Keyboard([[Button(go_to_the_message, url=f"https://t.me/{channel_username}/{msg_id}")]])
 
         for administrator_id in to_be_sent.get("administrators"):
             try:
