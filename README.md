@@ -15,18 +15,18 @@ First, clone this repository. Type:
 
     git clone https://github.com/Midblyte/tmnetbot
 
-Install the dependencies (let the project root be `$PROJECT_ROOT`):
+Install the dependencies (let the project root be `tmnetbot`):
 
-    cd $PROJECT_ROOT && pip install -r $PROJECT_ROOT/requirements.txt 
+    cd tmnetbot && pip install -r requirements.txt 
 
 Set the needed [environment variables](#environment-variables).
 You can also create a .env file at the root of the project and put them into it:
 
-    touch $PROJECT_ROOT/.env
+    touch .env
 
-Run the provided script. You'll see a .session file to be created in the `$PROJECT_ROOT` folder:
+Run the provided script. You'll see a .session file to be created in the folder:
 
-    python $PROJECT_ROOT/bin/start_bot.py
+    ./bin/start_bot.py  # OR  python ./bin/start_bot.py
 
 
 # Environment variables
