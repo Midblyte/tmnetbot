@@ -24,7 +24,7 @@ _entries = {
 }
 
 for section, options in _entries.items():
-    for option, is_required in options:
+    for option, is_required in options.items():
         key = '_'.join([section, option]).upper()
         value = dotenv.get(key, default=None)
         if is_required and value is None:
