@@ -17,7 +17,7 @@
 # along with tmnetbot.  If not, see <https://www.gnu.org/licenses/>.
 
 import os
-from typing import Any, Callable, Optional
+from typing import Any, Callable
 
 from pymongo import MongoClient
 from pymongo.collection import Collection
