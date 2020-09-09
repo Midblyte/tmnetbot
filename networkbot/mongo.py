@@ -30,8 +30,8 @@ mongo = MongoClient(config.get("MONGO_URL"))
 networkdb: Database = mongo[os.getenv("NETWORK_SHORT_NAME", "tmnetbot")]
 admins: Collection = networkdb.admins
 channels: Collection = networkdb.channels
-_options_collection: Collection = networkdb.options
-options: Callable[[str], Any] = lambda field: _options_collection.find_one({}, projection=[field]).get(field)
+options_collection: Collection = networkdb.options
+options: Callable[[str], Any] = lambda field: options_collection.find_one({}, projection=[field]).get(field)
 
 
 def init():
@@ -42,4 +42,4 @@ def init():
         "time_range_end": 16 * 60,  # Posting is enabled until 08:00 p.m UTC, in minutes
     }
 
-    _options_collection.update_one({}, {"$setOnInsert": defaults}, upsert=True)
+    options_collection.update_one({}, {"$setOnInsert": defaults}, upsert=True)
