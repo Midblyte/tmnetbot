@@ -24,7 +24,7 @@ import pymongo
 from pyrogram.errors import RPCError
 from pyrogram.types import Message, InlineKeyboardMarkup as Keyboard, InlineKeyboardButton as Button
 
-from .helpers import minutes_in_a_day
+from .utils.time import MINUTES_PER_DAY
 from .mongo import options, channels
 from .network import network
 from .telegram import telegram
@@ -56,7 +56,7 @@ class PeriodicMongoTask:
         if documents_number == 0:
             return
 
-        start_min, end_min = options("time_range_start") or 0, options("time_range_end") or minutes_in_a_day
+        start_min, end_min = options("time_range_start") or 0, options("time_range_end") or MINUTES_PER_DAY
 
         datetime_now = dt.utcnow()
         today = datetime_now.date()
