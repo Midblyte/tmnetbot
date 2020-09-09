@@ -29,7 +29,7 @@ def main():
     periodic_task.start()
     print("Bot on")
 
-    if admins.count_documents({}) == 0:
+    if admins.estimated_document_count() == 0:
         print("[!] Usa /makemeadmin per diventare admin senza intervenire manualmente")
         print("[!] dal database. Funziona solamente quando non è rilevato alcun admin.")
 
