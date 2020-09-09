@@ -83,4 +83,5 @@ To @gpicc, who agreed to make it open source
 
 # License
 Copyright (C) 2020 [Midblyte](https://github.com/Midblyte)
+
 Licensed under the terms of the [GNU General Public License v3 or later (GPLv3+)](https://github.com/Midblyte/tmnetbot/blob/master/LICENSE)
