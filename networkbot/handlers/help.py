@@ -34,7 +34,7 @@ help_for_users = """\
 Alias: /help
 
 <b>Comando /info</b>
-» Per conoscere quando ti sarà possibile inviare nuovamente un messaggio nel tuo canale, digita /info
+» Per conoscere quando ti sarà possibile inviare nuovamente un messaggio nel tuo canale
 
 <b>Inoltro di messaggio</b>
 » Se mi inoltri un messaggio da un tuo canale, provvederò ad inviarlo nel canale del network."""
@@ -66,6 +66,9 @@ Alias: /promote
 » Rimuovi un admin
 Alias: /declassify
 
+<b>Comando /impostazioni</b>
+» Imposta la fascia oraria consentita per l'invio degli inoltri, più il loro distanziamento
+Alias: /settings
 
 Nota: invece degli username, puoi specificare anche gli ID numerici"""
 
