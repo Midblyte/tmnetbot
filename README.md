@@ -11,42 +11,84 @@ tmnetbot - share your telegram channel by allowing other people to post into it 
 
 # Setup and run
 
+### Step 1
+
 First, clone this repository. Type:
 
     git clone https://github.com/Midblyte/tmnetbot
+
+### Step 2
 
 Install the dependencies (let the project root be `tmnetbot`):
 
     cd tmnetbot && pip install -r requirements.txt 
 
+### Step 3
+
 Set the needed [environment variables](#environment-variables).
 You can also create a .env file at the root of the project and put them into it:
 
+##### MacOS, Linux:
+
     touch .env
+
+##### Windows (Powershell):
+    
+    New-Item ".env"
+
+### Step 4
 
 Run the provided script. You'll see a .session file to be created in the folder:
 
-    ./bin/start_bot.py  # OR  python ./bin/start_bot.py
+##### MacOS, Linux:
+
+    ./bin/start_bot.py
+
+##### Windows:
+
+    python .\bin\start_bot.py
 
 
 # Environment variables
 
-Get them from https://my.telegram.com
+    TELEGRAM_BOT_TOKEN  
+
+Get it from https://telegram.me/botfather. Here's how you can get it:
+- Send the **/start** command
+- Type **/newbot**
+- Send your bot's name
+- Send your bot's username
+<hr>
 
     TELEGRAM_API_ID
     TELEGRAM_API_HASH
 
-Get it from https://telegram.me/botfather
-
-    TELEGRAM_BOT_TOKEN  
-
-Get it from https://mongodb.com
+Get them from https://my.telegram.com/apps. Here's how you can get it:
+- Login with your phone number
+- Create a new application: write the **app title** and a **short name**. The **URL** is not required
+- Click on **Create application**, then the **api_id** and the **api_hash** will show up. 
+- _See also_: [why not just the bot token?](https://docs.pyrogram.org/topics/mtproto-vs-botapi)
+<hr>
 
     MONGO_URL
-    
-Let it be anything you want (optional, defaults to `tmnetbot`)
+
+Get it from https://mongodb.com. Here's how you can get it:
+- Register on https://www.mongodb.com/cloud/atlas/signup
+(MongoDB Atlas is MongoDB over the cloud: this way, you won't have to worry about installing and configuring your
+databases locally)
+- Create a new cluster (shared clusters are free)
+- Select the cloud provider and platform (AWS, GCP or Azure) and the cluster name
+- In **Security** » **Network Access**, whitelist your IP
+- In **Security** » **Database Access**, create a new username (use **Password** as the authentication method)
+- In **Data storage** » **Cluster**, click on **Connect**, then **Connect your application**
+- Select **Python** as the driver and **3.6 or later** as the version
+- The _connection string_ will show up. It starts with _mongo+srv://_
+<hr>
 
     NETWORK_SHORT_NAME
+    
+Let it be anything you want (optional, defaults to `tmnetbot`).
+It is used both as database name and prefix of the session file
 
 ###### The correct format of the .env file is `KEY = VALUE`. For each variable give it its own line.
 
