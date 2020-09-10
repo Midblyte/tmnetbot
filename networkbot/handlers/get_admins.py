@@ -23,7 +23,7 @@ from pyrogram.types import Message, CallbackQuery
 from pyrogram.types.user_and_chats.user import Link
 
 from .. import filters as custom_filters
-from ..helpers import get_documents_range, format_documents_list
+from ..utils.documents import get_documents_range, format_documents_list
 from ..mongo import admins
 from ..telegram import telegram
 
