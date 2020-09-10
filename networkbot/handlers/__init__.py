@@ -30,5 +30,6 @@ from . import (
     make_me_admin,
     promote,
     remove_channel,
+    settings,
     start
 )
