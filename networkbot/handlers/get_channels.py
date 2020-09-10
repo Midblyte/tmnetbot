@@ -16,14 +16,24 @@
 # You should have received a copy of the GNU General Public License
 # along with tmnetbot.  If not, see <https://www.gnu.org/licenses/>.
 
-from pyrogram import filters
-from pyrogram.types import Message, CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup
+from datetime import timedelta
+from typing import Dict
+
+from pyrogram import filters, Client
+from pyrogram.methods.chats.get_chat_members import Filters
+from pyrogram.types import Message, CallbackQuery, InlineKeyboardMarkup as Keyboard
 
 from .. import filters as custom_filters
-from ..helpers import get_documents_range, format_documents_list, fmt_time, chunk, can_send_icon
+from ..utils.documents import get_documents_range, format_documents_list
+from ..utils.arrays import chunk
+from ..utils.channels import can_send_icon
 from ..mongo import channels, options
 from ..telegram import telegram
+from ..utils.keyboards import custom_btn, dummy_btn
+from ..utils.time import fmt_time
 
+
+_PREFIX = channels.name
 
 loading_channels = "\
 Caricamento lista canali..."
@@ -34,6 +44,12 @@ Aggiungili con /aggiungi @username"""
 
 channels_list = "\
 <b>Elenco dei canali</b>:\n\n{channels}"
+
+update_admins_text = "\
+Aggiorna amministratori"
+
+cant_update_admins_text = "\
+Amministratori già aggiornati"
 
 go_back = "\
 « Indietro"
@@ -47,42 +63,77 @@ async def get_channels(_, message: Message):
     await _navigate(await message.reply_text(loading_channels))
 
 
-@telegram.on_callback_query(filters.create(lambda _, __, cq: cq.data.startswith(f"{channels.name}_nav_")))
+@telegram.on_callback_query(filters.create(lambda _, __, cq: cq.data.startswith(f"{_PREFIX}_nav_")))
 async def get_channels_page(_, callback_query: CallbackQuery):
-    offset = int(callback_query.data.rsplit('_', 1)[1])
-
     await callback_query.answer()
+
+    offset = int(callback_query.data.rsplit('_', 1)[1])
 
     await _navigate(callback_query.message, offset)
 
 
-@telegram.on_callback_query(filters.create(lambda _, __, cq: cq.data.startswith(f"{channels.name}_info_")))
-async def get_channel_info(_, callback_query: CallbackQuery):
-    channel_id, back_offset = map(int, callback_query.data.rsplit('_', 2)[1:])
+@telegram.on_callback_query(filters.create(lambda _, __, cq: cq.data.startswith(f"{_PREFIX}_info_")))
+async def get_channel_info(client: Client, callback_query: CallbackQuery):
+    await callback_query.answer()
+
+    channel_id, back_offset, can_update_admins = map(int, callback_query.data.rsplit('_', 3)[1:])
 
     channel = channels.find_one({"channel_id": channel_id})
 
-    await callback_query.answer()
+    if not bool(can_update_admins):
+        administrators = filter(lambda member: not (member.user.is_deleted or member.user.is_bot),
+                                await client.get_chat_members(channel_id, filter=Filters.ADMINISTRATORS))
 
-    await callback_query.message.edit_text(channel.get("name"), reply_markup=InlineKeyboardMarkup([[
-        InlineKeyboardButton(go_back, f"{channels.name}_nav_{back_offset}")
-    ]]))
+        channels.find_one_and_update({"channel_id": channel_id},
+                                     {"$set": {"administrators": list(map(lambda m: m.user.id, administrators))}})
+
+    await callback_query.message.edit_text(_format_channel_info(channel, True), reply_markup=Keyboard([
+        [custom_btn(update_admins_text, _PREFIX, ['info', channel_id, back_offset, 0]) if can_update_admins else
+         dummy_btn(cant_update_admins_text)],
+        [custom_btn(go_back, _PREFIX, ['nav', back_offset])]
+    ]))
 
 
 async def _navigate(message: Message, offset=0):
     documents, keyboard = get_documents_range(channels, offset)
 
     if not keyboard:
-        keyboard = InlineKeyboardMarkup([])
+        keyboard = Keyboard([])
 
-    keyboard.inline_keyboard.extend(chunk((
-        InlineKeyboardButton(d.get("name"), f"{channels.name}_info_{d.get('channel_id')}_{offset}")
-        for d in documents), 2))
+    keyboard.inline_keyboard.extend([*map(list, chunk((
+            custom_btn(d.get("name"), _PREFIX, ['info', d.get('channel_id'), offset, 1]) for d in documents), 2))])
 
-    fmt_channels = format_documents_list(documents.rewind(), lambda c: f"""\
-{can_send_icon(c.get('last_send'), c.get('delta'), c.get('scheduling').get('in_queue'), options('channels_delta'))} \
-{c.get('name')}
-ID: {c.get('channel_id')}
-Dal: {fmt_time(c.get('_id').generation_time)}""")
+    fmt_channels = format_documents_list(documents.rewind(), _format_channel_info)
 
     await message.edit_text(channels_list.format(channels=fmt_channels), reply_markup=keyboard)
+
+
+def _format_channel_info(channel: Dict, detailed=False) -> str:
+    name = channel.get('name')
+    channel_id = channel.get('channel_id')
+    last_send = channel.get('last_send')
+    channel_delta = channel.get('delta')
+    delta = channel_delta or options("channels_delta")
+    in_queue = channel.get('scheduling').get('in_queue')
+    icon = can_send_icon(last_send, delta, in_queue)
+    generation_time = fmt_time(channel.get('_id').generation_time)
+    last_send_time = fmt_time(last_send)
+
+    text = f"""\
+{icon} {name}
+Ultimo invio » {last_send_time}"""
+
+    if detailed:
+        text = f"""\
+{icon} {name} [ID {channel_id}]
+Ultimo invio » {last_send_time}
+Aggiunto il » {generation_time}
+"""
+
+        if icon == '🔇':
+            text += f"\nProssimo invio dal: {fmt_time(last_send + timedelta(seconds=delta))}"
+
+        if channel_delta is not None:
+            text += f"\nDistanziamento personalizzato: {channel_delta} secondi"
+
+    return text
