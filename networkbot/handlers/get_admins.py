@@ -44,9 +44,9 @@ async def get_admins(_, message: Message):
 
 @telegram.on_callback_query(filters.create(lambda _, __, cq: cq.data.startswith(f"{admins.name}_nav_")))
 async def get_admins_page(_, callback_query: CallbackQuery):
-    offset = int(callback_query.data.rsplit('_', 1)[1])
-
     await callback_query.answer()
+
+    offset = int(callback_query.data.rsplit('_', 1)[1])
 
     await _navigate(callback_query.message, offset)
 
