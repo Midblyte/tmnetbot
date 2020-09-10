@@ -85,7 +85,7 @@ async def _navigate(message: Message, user_id: int, offset=0):
     for d in documents:
         if d.get('scheduling').get('in_queue') is True:
             keyboard.inline_keyboard.append([custom_btn(d.get("name"), _PREFIX,
-                                                                        ["rm", user_id, d.get("channel_id"), offset])])
+                                                        ["rm", user_id, d.get("channel_id"), offset])])
 
     if len(keyboard.inline_keyboard) == 0:
         keyboard = None
