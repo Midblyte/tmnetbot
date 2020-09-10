@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - Channel admins can now view detailed informations with /info (e.g. whether they can send messages or not);
+- Admins can now change the settings with /settings
 ### Fixed
 - The "Go to the message" button should redirect successfully now;
 ### Changed
