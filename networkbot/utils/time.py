@@ -29,6 +29,15 @@ def fmt_time(dt, fmt="%d/%m/%Y %H:%M:%S", timezone="Europe/Rome", never="mai") -
     return (pytz.utc.localize(dt) if dt.tzinfo is None else dt).astimezone(pytz.timezone(timezone)).strftime(fmt)
 
 
+def fmt_time_duration(seconds: int, fmt="{d}gg {H}h {M}m {S}s"):
+    return fmt.format(
+        d=int(seconds / 60 / 60 / 24),
+        H=int(seconds / 60 / 60 % 24),
+        M=int(seconds / 60 % 60),
+        S=seconds % 60
+    )
+
+
 def localize_minutes(minutes: int, timezone=pytz.timezone("Europe/Rome")) -> int:
     value = minutes + datetime.utcnow().astimezone(timezone).tzinfo.utcoffset(datetime.utcnow()).seconds // 60
 
