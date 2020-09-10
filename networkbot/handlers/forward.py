@@ -17,18 +17,19 @@
 # along with tmnetbot.  If not, see <https://www.gnu.org/licenses/>.
 
 from datetime import datetime, timedelta
-from typing import Optional, List, Dict, Tuple
+from typing import Optional, List, Dict
 
 from pyrogram import filters
 from pyrogram.errors import RPCError
 from pyrogram.methods.chats.get_chat_members import Filters
-from pyrogram.types import Message, ChatMember, InlineKeyboardMarkup as Keyboard, InlineKeyboardButton as Button,\
-    CallbackQuery
+from pyrogram.types import Message, ChatMember, CallbackQuery, InlineKeyboardMarkup as Keyboard
 
-from ..helpers import fmt_time, dummy_btn, chunk, minutes_in_a_day, localize_minutes
+from ..utils.time import fmt_time, fmt_mins
 from ..mongo import channels, options
 from ..telegram import telegram
+from ..utils.keyboards import select_double_time_keyboard, from_text, to_text, select_double_time_header, confirm_btn
 
+_PREFIX = "forward"
 
 not_a_channel = "\
 Devi inoltrare da un canale!"
@@ -54,18 +55,17 @@ Vai al messaggio"
 already_in_queue = "\
 Un messaggio da questo canale è già in attesa per l'invio"
 
-from_text = "Da"
+loading = "Caricamento..."
 
-to_text = "A"
 
 select_time_range = f"""\
 Seleziona la fascia oraria in cui desideri che il messaggio sia inviato
 
+Fascia oraria consentita: {{general_start}} - {{general_end}}
+
 Hai impostato:
 {from_text}: {{start}}
 {to_text}: {{end}}"""
-
-confirm_text = "Conferma"
 
 
 @telegram.on_message(filters.private & filters.forwarded)
@@ -89,7 +89,9 @@ async def forward(_, message: Message):
         return await message.reply_text(youre_not_an_admin)
 
     last_send: datetime = doc_channel.get("last_send") or datetime.min
+
     delta: int = doc_channel.get("delta") or options("channels_delta")
+
     diff: timedelta = datetime.utcnow() - last_send
 
     if diff.total_seconds() < delta:
@@ -98,67 +100,49 @@ async def forward(_, message: Message):
     if doc_channel.get("scheduling").get("in_queue"):
         return await message.reply_text(already_in_queue)
 
-    sent_message: Message = await message.reply_text("Loading...")
+    sent_message, start, end = await message.reply_text(loading), options("time_range_start"), options("time_range_end")
 
-    await _select_time(sent_message, tg_channel.id, message.forward_from_message_id, options("time_range_start"),
-                       options("time_range_end"))
+    channel_id, msg_id = tg_channel.id, message.forward_from_message_id
+
+    time_keyboard = select_double_time_keyboard(_PREFIX, start, end, ['set', channel_id, msg_id])
+
+    fmt_text = select_time_range.format(**{k: fmt_mins(v) for k, v in
+                                           {"start": start, "end": end, "general_start": start, "general_end": end}
+                                           .items()})
+
+    await sent_message.edit_text(fmt_text, reply_markup=Keyboard([
+        select_double_time_header(),
+        *time_keyboard,
+        [confirm_btn(_PREFIX, ['confirm', channel_id, msg_id, start, end])]
+    ]))
 
 
-@telegram.on_callback_query(filters.create(lambda _, __, cq: cq.data.startswith("forward_set_")))
+@telegram.on_callback_query(filters.create(lambda _, __, cq: cq.data.startswith(f"{_PREFIX}_set_")))
 async def select_forward_time(_, callback_query: CallbackQuery):
-    channel_id, msg_id, start, end = map(int, callback_query.data.rsplit('_', 4)[1:])
-
     await callback_query.answer()
 
-    await _select_time(callback_query.message, channel_id, msg_id, start, end)
+    channel_id, msg_id, start, end = map(int, callback_query.data.rsplit('_', 4)[1:])
+
+    time_keyboard = select_double_time_keyboard(_PREFIX, start, end, ['set', channel_id, msg_id])
+
+    fmt_text = select_time_range.format(general_start=options("time_range_start"),
+                                        general_end=options("time_range_end"), start=fmt_mins(start), end=fmt_mins(end))
+
+    await callback_query.message.edit_text(fmt_text, reply_markup=Keyboard([
+        select_double_time_header(),
+        *time_keyboard,
+        [confirm_btn(_PREFIX, ['confirm', channel_id, msg_id, start, end])]
+    ]))
 
 
-@telegram.on_callback_query(filters.create(lambda _, __, cq: cq.data.startswith("forward_confirm_")))
+@telegram.on_callback_query(filters.create(lambda _, __, cq: cq.data.startswith(f"{_PREFIX}_confirm_")))
 async def confirm_forward_time(_, callback_query: CallbackQuery):
     channel_id, msg_id, start, end = map(int, callback_query.data.rsplit('_', 4)[1:])
 
     await callback_query.answer()
 
-    if channels.find_one_and_update({"channel_id": channel_id, "scheduling.in_queue": False}, {"$set":
-            {"scheduling": {"in_queue": True, "message_id": msg_id, "time_from": start, "time_to": end}}}) is None:
-        return await callback_query.message.edit_text("Spiacente, un messaggio è già in coda per l'invio.")
+    if channels.find_one_and_update({"channel_id": channel_id, "scheduling.in_queue": False}, {"$set": {"scheduling": {
+            "in_queue": True, "message_id": msg_id, "time_from": start, "time_to": end}}}) is None:
+        return await callback_query.message.edit_text(already_in_queue)
 
     await callback_query.message.edit_text("Ok")
-
-
-async def _select_time(message: Message, channel_id: int, msg_id: int, start: int, end: int):
-    buttons, modes = (('1m', 1), ('15m', 15), ('1h', 60), ('4h', 240)),  (('+', +1), ('-', -1))
-
-    mid_keyboard = []
-    for prefix, sign in modes:
-        for row_buttons_info in chunk(buttons, 2):
-            mid_keyboard.append(_fwd_row(prefix, sign, row_buttons_info, channel_id, msg_id, start, end))
-
-    await message.edit_text(select_time_range.format(start=_fmt_mins(start), end=_fmt_mins(end)), reply_markup=Keyboard(
-        [[dummy_btn(from_text), dummy_btn(to_text)],
-         *mid_keyboard,
-         [_fwd_btn(confirm_text, channel_id, msg_id, start, end, "confirm")]]
-    ))
-
-
-def _fwd_btn(text: str, channel_id: int, msg_id: int, start: int, end: int, mode="set") -> Button:
-    return Button(text, f"forward_{mode}_{channel_id}_{msg_id}_{start % minutes_in_a_day}_{end % minutes_in_a_day}")
-
-
-def _fwd_row(prefix: str, sign: int, row_buttons_info: List[Tuple[str, int]], channel_id: int, msg_id: int, start: int,
-             end: int) -> List[Button]:
-    row_of_buttons: List[Button] = []
-
-    for lf, rf in (1, 0), (0, 1):
-        for label, value in row_buttons_info:
-            row_of_buttons.append(
-                _fwd_btn(f"{prefix}{label}", channel_id, msg_id, start + lf * sign * value, end + rf * sign * value))
-
-    return row_of_buttons
-
-
-def _fmt_mins(minutes: int, transform_function=localize_minutes) -> str:
-    if transform_function is not None:
-        minutes = transform_function(minutes)
-
-    return '{:02}:{:02}'.format(minutes // 60, minutes % 60)
