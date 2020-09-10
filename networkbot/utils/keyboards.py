@@ -55,7 +55,7 @@ def select_time_row(label: str, value: int, prefix: str, time: int, args: Iterab
 
         change = +value if sign == 0 else -value
 
-        buttons_row.append(custom_btn(f"{'+-'[sign]}{label}", prefix, [*args, fix_minutes(change + value)]))
+        buttons_row.append(custom_btn(f"{'+-'[sign]}{label}", prefix, [*args, fix_minutes(change + time)]))
 
     return buttons_row
 
