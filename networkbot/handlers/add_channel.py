@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with tmnetbot.  If not, see <https://www.gnu.org/licenses/>.
 
-from typing import Union, List
+from typing import Union, Iterable
 
 from pyrogram import filters, Client
 from pyrogram.errors import RPCError
@@ -64,7 +64,8 @@ async def add_channel(client: Client, message: Message):
         return await message.reply_text(not_a_channel)
 
     try:
-        channel_admins: List[ChatMember] = await channel.get_members(filter=Filters.ADMINISTRATORS)
+        channel_admins: Iterable[ChatMember] = filter(lambda m: not (m.user.is_deleted or m.user.is_bot),
+                                                      await channel.get_members(filter=Filters.ADMINISTRATORS))
     except RPCError:
         return await message.reply_text(im_not_admin)
 
@@ -82,4 +83,5 @@ async def add_channel(client: Client, message: Message):
                              "time_from": None,
                              "time_to": None
                          }})
+
     await message.reply_text(successfully_added.format(channel.title, channel.id))
