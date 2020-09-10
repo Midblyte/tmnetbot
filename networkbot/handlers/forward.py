@@ -137,9 +137,9 @@ async def select_forward_time(_, callback_query: CallbackQuery):
 
 @telegram.on_callback_query(filters.create(lambda _, __, cq: cq.data.startswith(f"{_PREFIX}_confirm_")))
 async def confirm_forward_time(_, callback_query: CallbackQuery):
-    channel_id, msg_id, start, end = map(int, callback_query.data.rsplit('_', 4)[1:])
-
     await callback_query.answer()
+
+    channel_id, msg_id, start, end = map(int, callback_query.data.rsplit('_', 4)[1:])
 
     if channels.find_one_and_update({"channel_id": channel_id, "scheduling.in_queue": False}, {"$set": {"scheduling": {
             "in_queue": True, "message_id": msg_id, "time_from": start, "time_to": end}}}) is None:
