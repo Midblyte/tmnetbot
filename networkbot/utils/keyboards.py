@@ -32,19 +32,18 @@ to_text = "A"
 confirm_text = "Conferma"
 
 
-def select_time_keyboard(prefix: str, time: int, args: Iterable[Any] = None):
+def select_time_keyboard(prefix: str, time: int, args: Iterable[Any] = None, buttons=_BUTTONS):
     if args is None:
         args = []
 
     time_keyboard = []
-    for label, value in _BUTTONS:
-        time_keyboard.append(select_time_row(label, value, prefix, fix_minutes(time), args))
+    for label, value in buttons:
+        time_keyboard.append(select_time_row(label, value, prefix, time, args))
 
     return time_keyboard
 
 
-def select_time_row(label: str, value: int, prefix: str, time: int, args: Iterable[Any] = None) \
-                                                                                                        -> List[Button]:
+def select_time_row(label: str, value: int, prefix: str, time: int, args: Iterable[Any] = None) -> List[Button]:
     buttons_row: List[Button] = []
 
     if args is None:
@@ -55,19 +54,20 @@ def select_time_row(label: str, value: int, prefix: str, time: int, args: Iterab
 
         change = +value if sign == 0 else -value
 
-        buttons_row.append(custom_btn(f"{'+-'[sign]}{label}", prefix, [*args, fix_minutes(change + time)]))
+        buttons_row.append(custom_btn(f"{'+-'[sign]}{label}", prefix, [*args, max(0, change + time)]))
 
     return buttons_row
 
 
-def select_double_time_keyboard(prefix: str, start: int, end: int, args: Iterable[Any] = None) -> List[List[Button]]:
+def select_double_time_keyboard(prefix: str, start: int, end: int, args: Iterable[Any] = None, buttons=_BUTTONS) -> \
+                                                                                                     List[List[Button]]:
     if args is None:
         args = []
 
     start, end = map(fix_minutes, (start, end))
 
     time_keyboard = []
-    for label, value in _BUTTONS:
+    for label, value in buttons:
         time_keyboard.append(select_double_time_row(label, value, prefix, start, end, args))
 
     return time_keyboard
