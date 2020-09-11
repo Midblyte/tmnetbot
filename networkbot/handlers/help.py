@@ -48,7 +48,7 @@ Alias: /channels
 
 <b>Comando /amministratori</b>
 » Elenco degli admin di questo bot e del network (non dei singoli canali)
-Alias: /admins, admin
+Alias: /admins, /admin
 
 <b>Comando /aggiungi @username</b>
 » Inserisci un nuovo canale
