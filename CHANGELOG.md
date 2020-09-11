@@ -13,6 +13,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - The NETWORK_SHORT_NAME environment variable is now optional
 
-
 ## [0.1.0-alpha] - 2020-09-05
 Initial release

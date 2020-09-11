@@ -26,6 +26,7 @@ from ..mongo import options, admins, options_collection
 from ..telegram import telegram
 from ..utils.time import fmt_mins, fmt_time_duration
 
+
 _PREFIX = "settings"
 
 get_settings_menu_buttons = lambda: [
