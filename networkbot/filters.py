@@ -17,19 +17,19 @@
 # along with tmnetbot.  If not, see <https://www.gnu.org/licenses/>.
 
 from pyrogram import filters
-from pyrogram.types import Message
+from pyrogram.types import Message, Update, CallbackQuery
 
 from .mongo import admins
 
 
-async def is_admin_filter(_, __, message: Message):
-    return bool(not message.from_user or admins.find_one({"user_id": message.chat.id}))
+async def is_admin_filter(_, __, update: Update):
+    return bool(isinstance(update, Message) and not update.from_user or admins.find_one({"user_id": update.chat.id}))
 
 is_admin = filters.create(is_admin_filter)
 
 
-async def no_admins_filter(_, __, message: Message):
-    return bool(not message.from_user or admins.count_documents({}) == 0)
+async def no_admins_filter(_, __, update: Update):
+    return bool(isinstance(update, Message) and admins.estimated_document_count() == 0)
 
 no_admins = filters.create(no_admins_filter)
 
