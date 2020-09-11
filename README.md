@@ -51,6 +51,12 @@ Run the provided script. You'll see a .session file to be created in the folder:
 
 # Environment variables
 
+    TELEGRAM_NETWORK
+
+It's the **@username** (for public channels) or the numeric **ID** (both for public and private channels).
+All messages will be forwarded here.
+<hr>
+
     TELEGRAM_BOT_TOKEN  
 
 Get it from https://telegram.me/botfather. Here's how you can get it:
