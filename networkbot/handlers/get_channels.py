@@ -52,7 +52,7 @@ update_admins_text = "\
 Aggiorna amministratori"
 
 cant_update_admins_text = "\
-Amministratori già aggiornati"
+Amministratori aggiornati"
 
 go_back = "\
 « Indietro"
