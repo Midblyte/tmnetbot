@@ -16,9 +16,10 @@
 # You should have received a copy of the GNU General Public License
 # along with tmnetbot.  If not, see <https://www.gnu.org/licenses/>.
 
+import datetime
 from datetime import datetime as dt, time as t, timedelta
 from threading import Timer, Lock
-from typing import Optional, Dict, Union, List
+from typing import Dict, Union, List
 
 import pymongo
 from pyrogram.errors import RPCError
@@ -44,31 +45,53 @@ class PeriodicMongoTask:
         self._running = False
 
     @staticmethod
-    def _check():
-        collection_filter = {"scheduling.in_queue": True}
-        collection_sort = [
-            ("_id", pymongo.ASCENDING),
-            ("scheduling.time_to", pymongo.ASCENDING)
-        ]
-        to_be_sent: Optional[Dict] = channels.find_one(collection_filter, sort=collection_sort)
-        documents_number = channels.count_documents(collection_filter)
-
-        if documents_number == 0:
-            return
-
-        start_min, end_min = options("time_range_start") or 0, options("time_range_end") or MINUTES_PER_DAY
-
-        datetime_now = dt.utcnow()
-        today = datetime_now.date()
-        start = dt.combine(today, t.min) + timedelta(minutes=start_min)
-        end = dt.combine(today, t.min) + timedelta(minutes=end_min)
+    def _can_send(start: datetime.datetime, end: datetime.datetime, now: datetime.datetime):
         inclusive = True
 
         if start > end:
             start, end = end, start
             inclusive = False
 
-        if start < datetime_now < end and not inclusive:
+        if (start < now < end and inclusive) or ((now < start or now > end) and not inclusive):
+            return True
+        else:
+            return False
+
+    @staticmethod
+    def _check():
+        collection_filter = {"scheduling.in_queue": True}
+        collection_sort = [
+            ("scheduling.time_to", pymongo.ASCENDING),
+            ("last_send", pymongo.ASCENDING)
+        ]
+        documents_number: int = channels.count_documents(collection_filter)
+
+        if documents_number == 0:
+            return
+
+        start_mins, end_mins = options("time_range_start") or 0, options("time_range_end") or MINUTES_PER_DAY
+
+        datetime_now = dt.utcnow()
+        today = datetime_now.date()
+        start, end = map(lambda minutes: dt.combine(today, t.min) + timedelta(minutes=minutes), (start_mins, end_mins))
+
+        if not PeriodicMongoTask._can_send(start, end, datetime_now):
+            return
+
+        queue_documents: List[Dict] = list(channels.find(collection_filter, sort=collection_sort))
+
+        for document in queue_documents:
+            scheduling = document.get('scheduling')
+
+            channel_start_mins, channel_end_mins = scheduling.get("time_from"), scheduling.get("time_to")
+
+            channel_start, channel_end = map(lambda minutes: dt.combine(today, t.min) + timedelta(minutes=minutes),
+                                             (channel_start_mins, channel_end_mins))
+
+            if PeriodicMongoTask._can_send(channel_start or start, channel_end or end, datetime_now):
+                to_be_sent = document
+                break
+        else:
             return
 
         channel_id, message_id = to_be_sent.get("channel_id"), to_be_sent.get("scheduling").get("message_id")
