@@ -16,10 +16,10 @@
 # You should have received a copy of the GNU General Public License
 # along with tmnetbot.  If not, see <https://www.gnu.org/licenses/>.
 
-from . import handlers
 from .scheduler import periodic_task
 from .config import config
 from .core import main
+from . import handlers
 
 
 __version__ = "0.1.0"
