@@ -16,6 +16,8 @@
 # You should have received a copy of the GNU General Public License
 # along with tmnetbot.  If not, see <https://www.gnu.org/licenses/>.
 
+import functools
+
 from pyrogram import filters
 from pyrogram.types import Message, CallbackQuery, InlineKeyboardMarkup as Keyboard
 
@@ -28,6 +30,8 @@ from ..utils.time import fmt_mins, fmt_time_duration
 
 
 _PREFIX = "settings"
+
+_path = functools.partial(custom_filters.arguments, _PREFIX)
 
 get_settings_menu_buttons = lambda: [
     [custom_btn('Network -> fascia oraria', _PREFIX, ['forward', 'tr', 'set',
@@ -68,14 +72,14 @@ async def settings(_, message: Message):
     await message.reply_text(settings_text, reply_markup=Keyboard(get_settings_menu_buttons()))
 
 
-@telegram.on_callback_query(filters.create(lambda _, __, cq: cq.data.startswith(f"{_PREFIX}_menu")))
+@telegram.on_callback_query(_path("menu"))
 async def settings_menu(_, callback_query: CallbackQuery):
     await callback_query.answer()
 
     await callback_query.message.edit_text(settings_text, reply_markup=Keyboard(get_settings_menu_buttons()))
 
 
-@telegram.on_callback_query(filters.create(lambda _, __, cq: cq.data.startswith(f"{_PREFIX}_forward_tr_set_")))
+@telegram.on_callback_query(_path("forward", "tr", "set"))
 async def settings_forward_time_range_set(_, callback_query: CallbackQuery):
     await callback_query.answer()
 
@@ -94,7 +98,7 @@ async def settings_forward_time_range_set(_, callback_query: CallbackQuery):
     ]))
 
 
-@telegram.on_callback_query(filters.create(lambda _, __, cq: cq.data.startswith(f"{_PREFIX}_forward_tr_confirm_")))
+@telegram.on_callback_query(_path("forward", "tr", "confirm"))
 async def settings_forward_time_range_confirm(_, callback_query: CallbackQuery):
     await callback_query.answer()
 
@@ -108,7 +112,7 @@ async def settings_forward_time_range_confirm(_, callback_query: CallbackQuery):
     await settings_ok(callback_query.message)
 
 
-@telegram.on_callback_query(filters.create(lambda _, __, cq: cq.data.startswith(f"{_PREFIX}_forward_nd_set_")))
+@telegram.on_callback_query(_path("forward", "nd", "set"))
 async def settings_forward_network_delta_set(_, callback_query: CallbackQuery):
     await callback_query.answer()
 
@@ -126,7 +130,7 @@ async def settings_forward_network_delta_set(_, callback_query: CallbackQuery):
     ]))
 
 
-@telegram.on_callback_query(filters.create(lambda _, __, cq: cq.data.startswith(f"{_PREFIX}_forward_nd_confirm_")))
+@telegram.on_callback_query(_path("forward", "nd", "confirm"))
 async def settings_forward_network_delta_confirm(_, callback_query: CallbackQuery):
     await callback_query.answer()
 
@@ -139,7 +143,7 @@ async def settings_forward_network_delta_confirm(_, callback_query: CallbackQuer
     await settings_ok(callback_query.message)
 
 
-@telegram.on_callback_query(filters.create(lambda _, __, cq: cq.data.startswith(f"{_PREFIX}_forward_cd_set_")))
+@telegram.on_callback_query(_path("forward", "cd", "set"))
 async def settings_forward_channels_delta_set(_, callback_query: CallbackQuery):
     await callback_query.answer()
 
@@ -157,7 +161,7 @@ async def settings_forward_channels_delta_set(_, callback_query: CallbackQuery):
     ]))
 
 
-@telegram.on_callback_query(filters.create(lambda _, __, cq: cq.data.startswith(f"{_PREFIX}_forward_cd_confirm_")))
+@telegram.on_callback_query(_path("forward", "cd", "confirm"))
 async def settings_forward_channels_delta_confirm(_, callback_query: CallbackQuery):
     await callback_query.answer()
 

@@ -32,3 +32,21 @@ async def no_admins_filter(_, __, message: Message):
     return bool(not message.from_user or admins.count_documents({}) == 0)
 
 no_admins = filters.create(no_admins_filter)
+
+
+def arguments(*args, separator='_', method='startswith'):
+    async def func(flt, __, update: Update):
+        if not isinstance(update, CallbackQuery):
+            return False
+
+        joined_arguments = flt.separator.join(flt.arguments)
+
+        return (method == 'startswith' and update.data.startswith(joined_arguments)) or \
+            (method == 'equals' and update.data == joined_arguments) or \
+            (method == 'endswith' and update.data.endswith(joined_arguments))
+
+    return filters.create(
+        func,
+        arguments=args,
+        separator=separator
+    )

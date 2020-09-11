@@ -16,6 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with tmnetbot.  If not, see <https://www.gnu.org/licenses/>.
 
+import functools
 from datetime import timedelta
 from typing import Dict
 
@@ -34,6 +35,8 @@ from ..utils.time import fmt_time
 
 
 _PREFIX = channels.name
+
+_path = functools.partial(custom_filters.arguments, _PREFIX)
 
 loading_channels = "\
 Caricamento lista canali..."
@@ -63,7 +66,7 @@ async def get_channels(_, message: Message):
     await _navigate(await message.reply_text(loading_channels))
 
 
-@telegram.on_callback_query(filters.create(lambda _, __, cq: cq.data.startswith(f"{_PREFIX}_nav_")))
+@telegram.on_callback_query(_path('nav'))
 async def get_channels_page(_, callback_query: CallbackQuery):
     await callback_query.answer()
 
@@ -72,7 +75,7 @@ async def get_channels_page(_, callback_query: CallbackQuery):
     await _navigate(callback_query.message, offset)
 
 
-@telegram.on_callback_query(filters.create(lambda _, __, cq: cq.data.startswith(f"{_PREFIX}_info_")))
+@telegram.on_callback_query(_path('info'))
 async def get_channel_info(client: Client, callback_query: CallbackQuery):
     await callback_query.answer()
 

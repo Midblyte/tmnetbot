@@ -15,12 +15,15 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with tmnetbot.  If not, see <https://www.gnu.org/licenses/>.
+
+import functools
 from datetime import timedelta
 from typing import Dict, Callable
 
 from pyrogram import filters
 from pyrogram.types import Message, InlineKeyboardMarkup as Keyboard, CallbackQuery
 
+from .. import filters as custom_filters
 from ..utils.channels import can_send_icon
 from ..utils.documents import get_documents_range, format_documents_list
 from ..utils.keyboards import custom_btn
@@ -32,6 +35,8 @@ from ..utils.time import fmt_time
 
 
 _PREFIX = channels.name
+
+_path = functools.partial(custom_filters.arguments, _PREFIX)
 
 not_an_admin = "\
 Non sei admin di alcun canale."
@@ -56,7 +61,7 @@ async def info(_, message: Message):
     await _navigate(await message.reply_text(loading_channels), message.from_user.id)
 
 
-@telegram.on_callback_query(filters.create(lambda _, __, cq: cq.data.startswith(f"{_PREFIX}_admins_nav_")))
+@telegram.on_callback_query(_path("admins", "nav"))
 async def get_channels_info_page(_, callback_query: CallbackQuery):
     user_id, offset = map(int, callback_query.data.rsplit('_', 2)[1:])
 
@@ -65,7 +70,7 @@ async def get_channels_info_page(_, callback_query: CallbackQuery):
     await _navigate(callback_query.message, user_id, offset)
 
 
-@telegram.on_callback_query(filters.create(lambda _, __, cq: cq.data.startswith(f"{_PREFIX}_rm_")))
+@telegram.on_callback_query(_path("rm"))
 async def get_channels_info_page(_, callback_query: CallbackQuery):
     user_id, channel_id, offset = map(int, callback_query.data.rsplit('_', 3)[1:])
 

@@ -16,12 +16,12 @@
 # You should have received a copy of the GNU General Public License
 # along with tmnetbot.  If not, see <https://www.gnu.org/licenses/>.
 
-from pyrogram import filters
 from pyrogram.types import CallbackQuery
 
+from .. import filters as custom_filters
 from ..telegram import telegram
 
 
-@telegram.on_callback_query(filters.create(lambda _, __, cq: cq.data == "dummy"))
+@telegram.on_callback_query(custom_filters.arguments('dummy', method='equals'))
 def _dummy_btn_handler(_, callback_query: CallbackQuery):
     callback_query.answer()

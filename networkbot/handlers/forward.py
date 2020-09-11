@@ -16,6 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with tmnetbot.  If not, see <https://www.gnu.org/licenses/>.
 
+import functools
 from datetime import datetime, timedelta
 from typing import Optional, List, Dict
 
@@ -24,6 +25,7 @@ from pyrogram.errors import RPCError
 from pyrogram.methods.chats.get_chat_members import Filters
 from pyrogram.types import Message, ChatMember, CallbackQuery, InlineKeyboardMarkup as Keyboard
 
+from .. import filters as custom_filters
 from ..utils.time import fmt_time, fmt_mins
 from ..utils.keyboards import select_double_time_keyboard, from_text, to_text, select_double_time_header, confirm_btn
 from ..mongo import channels, options
@@ -31,6 +33,8 @@ from ..telegram import telegram
 
 
 _PREFIX = "forward"
+
+_path = functools.partial(custom_filters.arguments, _PREFIX)
 
 not_a_channel = "\
 Devi inoltrare da un canale!"
@@ -118,7 +122,7 @@ async def forward(_, message: Message):
     ]))
 
 
-@telegram.on_callback_query(filters.create(lambda _, __, cq: cq.data.startswith(f"{_PREFIX}_set_")))
+@telegram.on_callback_query(_path("set"))
 async def select_forward_time(_, callback_query: CallbackQuery):
     await callback_query.answer()
 
@@ -136,7 +140,7 @@ async def select_forward_time(_, callback_query: CallbackQuery):
     ]))
 
 
-@telegram.on_callback_query(filters.create(lambda _, __, cq: cq.data.startswith(f"{_PREFIX}_confirm_")))
+@telegram.on_callback_query(_path("confirm"))
 async def confirm_forward_time(_, callback_query: CallbackQuery):
     await callback_query.answer()
 
