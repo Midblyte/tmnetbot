@@ -30,8 +30,6 @@ from ..utils.keyboards import custom_btn
 from ..utils.time import fmt_time
 from ..mongo import channels, options
 from ..telegram import telegram
-from ..utils.keyboards import custom_btn
-from ..utils.time import fmt_time
 
 
 _PREFIX = channels.name
@@ -50,7 +48,7 @@ Caricamento canali di cui sei amministratore..."
 channels_admin_filter: Callable[[int], Dict] = lambda uid: {"administrators": {"$in": [uid]}}
 
 
-@telegram.on_message(filters.private & filters.command(["info"]))
+@telegram.on_message(filters.private & filters.command("info"))
 async def info(_, message: Message):
     collection_filter: Dict = channels_admin_filter(message.from_user.id)
     count = channels.count_documents(collection_filter)
