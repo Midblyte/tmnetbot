@@ -51,7 +51,7 @@ Run the provided script. You'll see a .session file to be created in the folder:
 
 # Environment variables
 
-    TELEGRAM_NETWORK
+    TELEGRAM_CHANNEL
 
 It's the **@username** (for public channels) or the numeric **ID** (both for public and private channels).
 All messages will be forwarded here.
@@ -126,7 +126,7 @@ Internationalization is not yet a priority, but any help is welcome.
 
 # Special thanks
 
-To @gpicc, who agreed to make it open source
+To [gpicc](https://about.me/GiulioPiccinno), who agreed to make it open source.
 
 
 # License
