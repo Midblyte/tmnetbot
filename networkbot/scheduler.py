@@ -52,10 +52,7 @@ class PeriodicMongoTask:
             start, end = end, start
             inclusive = False
 
-        if (start < now < end and inclusive) or ((now < start or now > end) and not inclusive):
-            return True
-        else:
-            return False
+        return (start < now < end and inclusive) or ((now < start or now > end) and not inclusive)
 
     @staticmethod
     def _check():
