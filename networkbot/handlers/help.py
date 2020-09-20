@@ -19,7 +19,7 @@
 from pyrogram import filters
 from pyrogram.types import Message
 
-from ..mongo import admins
+from ..mongo import users
 from ..telegram import telegram
 
 
@@ -75,7 +75,7 @@ Nota: invece degli username, puoi specificare anche gli ID numerici"""
 
 @telegram.on_message(filters.private & filters.command(["help", "aiuto"]))
 async def help_command(_, message: Message):
-    is_admin = admins.find_one({"user_id": message.from_user.id})
+    is_admin = users.find_one({"user_id": message.from_user.id, "admin": True})
 
     help_msg = help_for_users
 
