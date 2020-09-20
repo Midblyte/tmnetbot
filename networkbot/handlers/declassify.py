@@ -15,8 +15,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with tmnetbot.  If not, see <https://www.gnu.org/licenses/>.
+
 from html import escape
-from typing import List
 
 from pyrogram import filters, Client
 from pyrogram.errors import RPCError
