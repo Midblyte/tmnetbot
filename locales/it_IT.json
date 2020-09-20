@@ -25,7 +25,7 @@
   "add_channel.successfully_added": "Inserito il canale <b>{name}</b> (ID {id}).",
 
   "declassify.usage": "Uso: /declassa @Username\n\nAlias: /declassify",
-  "declassify.not_in_list": "L'admin non è nella lista.",
+  "declassify.not_in_list": "L'utente non è nella lista amministratori.",
   "declassify.successfully_removed": "L'utente '{mention}' (ID {id}) è stato rimosso dalla lista degli amministratori.",
 
   "forward.not_a_channel": "Non puoi inoltrare da questa chat siccome non è un canale.",
@@ -38,6 +38,13 @@
 
   "get_admins.loading_admins": "Caricamento lista amministratori...",
   "get_admins.admins_list": "Elenco degli amministratori:\n\n\n{admins} ",
+
+  "makemeadmin.info": "<b>Ora sei admin</b>.\n\nNota: a partire da questo momento il comando non funzionerà più.",
+
+  "remove_channel.usage": "Uso: /rimuovi @Username\n\nAlias: /remove, /rm",
+  "remove_channel.not_a_channel": "Non puoi rimuovere questa chat siccome non è un canale.",
+  "remove_channel.not_in_list": "Il canale non è nella lista.",
+  "remove_channel.successfully_removed": "Rimosso il canale <b>{name}</b> (ID {id}).",
 
   "start.info": "Ciao {mention},\n\nDigita /aiuto per maggiori informazioni sul funzionamento del bot"
 
