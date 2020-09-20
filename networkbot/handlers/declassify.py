@@ -40,7 +40,7 @@ async def declassify(client: Client, message: Message):
     user_as_text = message.text.split(' ')[1]
 
     try:
-        admin = await client.get_users(user_as_text)
+        admin: User = await client.get_users(user_as_text)
     except RPCError:
         return await message.reply_text(not_an_user)
 
