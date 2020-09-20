@@ -26,8 +26,9 @@ from pymongo.database import Database
 from .config import config
 from .utils.time import MINUTES_PER_DAY
 
-mongo = MongoClient(config.get("MONGO_URL"))
-networkdb: Database = mongo[os.getenv("NETWORK_SHORT_NAME", "tmnetbot")]
+
+mongo = MongoClient(config.MONGO_URL)
+networkdb: Database = mongo[config.NETWORK_SHORT_NAME]
 admins: Collection = networkdb.admins
 channels: Collection = networkdb.channels
 options_collection: Collection = networkdb.options

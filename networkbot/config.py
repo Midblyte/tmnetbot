@@ -16,35 +16,28 @@
 # You should have received a copy of the GNU General Public License
 # along with tmnetbot.  If not, see <https://www.gnu.org/licenses/>.
 
+import os
 import sys
+from collections import namedtuple
 
 from pyrogram.scaffold import Scaffold
 import dotenv
 
+from .internationalization import translator
+
 
 dotenv.load(Scaffold.PARENT_DIR / '..' / ".env")
 
-config = {}
+_ = translator("config", locale=os.getenv("CLI_LOCALE"))
 
-_entries = {
-    "telegram": {
-        "api_id": True,
-        "api_hash": True,
-        "bot_token": True,
-        "channel": True
-    },
-    "mongo": {
-        "url": True
-    },
-    "network": {
-        "short_name": False
-    }
-}
+_required = ["TELEGRAM_API_ID", "TELEGRAM_API_HASH", "TELEGRAM_BOT_TOKEN", "TELEGRAM_CHANNEL", "MONGO_URL"]
 
-for section, options in _entries.items():
-    for option, is_required in options.items():
-        key = '_'.join([section, option]).upper()
-        value = dotenv.get(key, default=None)
-        if is_required and value is None:
-            sys.exit(f"Environment variable not found: '{key}'")
-        config[key] = value
+_optional = {"NETWORK_SHORT_NAME": "tmnetbot", "CLI_LOCALE": "en_US"}
+
+Config = namedtuple("Config", _required + list(_optional), defaults=_optional.values())
+
+
+try:
+    config = Config(*[dotenv.get(k) for k in _required], **{k: dotenv.get(k) or _optional[k] for k in _optional})
+except TypeError as err:
+    print(err, file=sys.stderr)

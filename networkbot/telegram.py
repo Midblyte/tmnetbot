@@ -24,8 +24,8 @@ from pyrogram.scaffold import Scaffold
 from .config import config
 
 
-telegram = Client(os.getenv("NETWORK_SHORT_NAME", "tmnetbot"),
-                  api_id=config.get("TELEGRAM_API_ID"),
-                  api_hash=config.get("TELEGRAM_API_HASH"),
-                  bot_token=config.get("TELEGRAM_BOT_TOKEN"),
+telegram = Client(config.NETWORK_SHORT_NAME,
+                  api_id=config.TELEGRAM_API_ID,
+                  api_hash=config.TELEGRAM_API_HASH,
+                  bot_token=config.TELEGRAM_BOT_TOKEN,
                   workdir=Scaffold.PARENT_DIR / '..')
