@@ -35,7 +35,7 @@ def fmt_time(dt) -> str:
 
     return (pytz.utc.localize(dt) if dt.tzinfo is None else dt) \
         .astimezone(pytz.timezone(_("timezone"))) \
-        .strftime(_("full_format"))
+        .strftime(_("date_full_format"))
 
 
 def fmt_time_duration(seconds: int):
