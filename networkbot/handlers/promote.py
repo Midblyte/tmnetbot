@@ -21,7 +21,7 @@ from pyrogram.types import Message
 from pyrogram.errors import RPCError
 
 from .. import filters as custom_filters
-from ..mongo import admins
+from ..mongo import users
 from ..telegram import telegram
 
 
@@ -50,8 +50,8 @@ async def promote(client: Client, message: Message):
     except RPCError:
         return await message.reply_text(not_an_user)
 
-    if admins.find_one({"user_id": admin.id}):
+    if users.find_one({"user_id": admin.id, "admin": True}):
         return await message.reply_text(already_listed_admin)
 
-    admins.insert_one({"user_id": admin.id, "name": admin.first_name})
+    users.insert_one({"user_id": admin.id, "name": admin.first_name, "admin": True})
     await message.reply_text(promote_successful.format(admin.first_name, admin.id))
