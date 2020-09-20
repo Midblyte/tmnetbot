@@ -20,13 +20,13 @@ import os
 
 from pyrogram import idle
 
-from . import mongo, periodic_task
+from . import mongo, periodic_task, config
 from .internationalization import translator
 from .mongo import admins
 from .telegram import telegram
 
 
-_ = translator("cli", locale=os.getenv("CLI_LOCALE"))
+_ = translator("cli", locale=config.CLI_LOCALE)
 
 
 def main():
