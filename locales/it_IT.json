@@ -8,6 +8,7 @@
 
   "general.confirm": "Conferma",
   "general.loading": "Caricamento...",
+  "general.back": "Indietro",
   "general.ok": "Ok",
 
   "time.from": "Da",
@@ -37,9 +38,13 @@
   "forward.select_time_range": "Seleziona la fascia oraria in cui desideri che il messaggio sia inviato\n\nFascia oraria consentita: {general_start} - {general_end}\n\nHai impostato:\nDa: {start}\nA: {end}",
 
   "get_admins.loading_admins": "Caricamento lista amministratori...",
-  "get_admins.admins_list": "Elenco degli amministratori:\n\n\n{admins} ",
+  "get_admins.admins_list": "Elenco degli amministratori:\n\n{admins}",
 
-  "groups.channels_only": "Posso essere aggiunto solo nei canali",
+  "groups.channels_only": "Posso essere aggiunto solo nei canali.",
+
+  "info.not_an_admin": "Non sei amministratore di alcun canale.",
+  "info.loading_channels": "Caricamento canali di cui sei amministratore...",
+  "info.channels_list": "<b>Canali di cui sei admin</b>:\n\n{channels}.",
 
   "makemeadmin.info": "<b>Ora sei admin</b>.\n\nNota: a partire da questo momento il comando non funzionerà più.",
 

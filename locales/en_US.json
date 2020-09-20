@@ -8,6 +8,7 @@
 
   "general.confirm": "Confirm",
   "general.loading": "Loading...",
+  "general.back": "Back",
   "general.ok": "Ok",
 
   "time.from": "From",
@@ -37,9 +38,13 @@
   "forward.select_time_range": "Select the time slot in which you want the message to be sent\n\nAllowed time range: {general_start} - {general_end}\n\nYou have set:\nFrom: {start}\nTo: {end}",
 
   "get_admins.loading_admins": "Loading administrators list...",
-  "get_admins.admins_list": "List of administrators:\n\n\n{admins} ",
+  "get_admins.admins_list": "List of administrators:\n\n{admins}",
 
-  "groups.channels_only": "I can only be added in channels",
+  "groups.channels_only": "I can only be added in channels.",
+
+  "info.not_an_admin": "You are not administrator of any channel.",
+  "info.loading_channels": "Loading channels of which you are administrator...",
+  "info.channels_list": "<b>Channels of which you are admin</b>:\n\n{channels}",
 
   "makemeadmin.info": "<b>Now you are admin</b>.\nNote: starting from this moment the command will not work anymore",
 
