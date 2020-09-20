@@ -16,7 +16,6 @@
 # You should have received a copy of the GNU General Public License
 # along with tmnetbot.  If not, see <https://www.gnu.org/licenses/>.
 
-import os
 from typing import Any, Callable
 
 from pymongo import MongoClient
