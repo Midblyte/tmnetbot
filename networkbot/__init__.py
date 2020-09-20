@@ -28,4 +28,6 @@ __copyright__ = "Copyright (C) 2020 Midblyte <https://github.com/Midblyte>"
 
 
 def start():
+    from . import upgrader
+
     core.main()
