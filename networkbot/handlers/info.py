@@ -24,6 +24,7 @@ from pyrogram import filters
 from pyrogram.types import Message, InlineKeyboardMarkup as Keyboard, CallbackQuery
 
 from .. import filters as custom_filters
+from ..internationalization import translator
 from ..utils.channels import can_send_icon
 from ..utils.documents import get_documents_range, format_documents_list
 from ..utils.keyboards import custom_btn
@@ -32,18 +33,11 @@ from ..mongo import channels, options
 from ..telegram import telegram
 
 
+_ = translator("info")
+
 _PREFIX = channels.name
 
 _path = functools.partial(custom_filters.arguments, _PREFIX)
-
-not_an_admin = "\
-Non sei admin di alcun canale."
-
-admin_of_these_channels = "\
-<b>Canali di cui sei admin</b>:\n\n{channels}"
-
-loading_channels = "\
-Caricamento canali di cui sei amministratore..."
 
 channels_admin_filter: Callable[[int], Dict] = lambda uid: {"administrators": {"$in": [uid]}}
 
@@ -54,9 +48,10 @@ async def info(__, message: Message):
     count = channels.count_documents(collection_filter)
 
     if count == 0:
-        return await message.reply_text(not_an_admin)
+        return await message.reply_text(_("not_an_admin", locale=message.from_user.language_code))
 
-    await _navigate(await message.reply_text(loading_channels), message.from_user.id)
+    await _navigate(await message.reply_text(_("loading_channels", locale=message.from_user.language_code)),
+                    message.from_user.id)
 
 
 @telegram.on_callback_query(_path("admins", "nav"))
@@ -98,7 +93,8 @@ async def _navigate(message: Message, user_id: int, offset=0):
 
     fmt_channels = format_documents_list(documents.rewind(), _format_channel_info)
 
-    await message.edit_text(admin_of_these_channels.format(channels=fmt_channels), reply_markup=keyboard)
+    await message.edit_text(_("channels_list", locale=message.from_user.language_code, channels=fmt_channels),
+                            reply_markup=keyboard)
 
 
 def _format_channel_info(channel: Dict, detailed=False) -> str:
