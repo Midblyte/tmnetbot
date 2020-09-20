@@ -22,37 +22,32 @@ from pyrogram.types import Message, Chat
 
 from .add_channel import not_a_channel
 from .. import filters as custom_filters
+from ..internationalization import translator
 from ..mongo import channels
 from ..telegram import telegram
 
 
-usage = "\
-Uso: /rimuovi @Username\n\nAlias: /remove, /rm"
-
-successfully_removed = "\
-Rimosso {} ({})."
-
-unlisted_channel = "\
-Il canale non è nella lista."
+_ = translator("remove_channel")
 
 
 @telegram.on_message(filters.private & filters.text & filters.command(["remove", "rm", "rimuovi"]) &
                      custom_filters.is_admin)
 async def remove_channel(client: Client, message: Message):
     if ' ' not in message.text:
-        return await message.reply_text(usage)
+        return await message.reply_text(_("usage", locale=message.from_user.language_code))
 
     channel_as_text = message.text.split(' ')[1]
 
     try:
         channel: Chat = await client.get_chat(channel_as_text)
     except RPCError:
-        return await message.reply_text(unlisted_channel)
+        return await message.reply_text(_("unlisted_channel", locale=message.from_user.language_code))
 
     if channel.type != "channel":
-        return await message.reply_text(not_a_channel)
+        return await message.reply_text(_("not_a_channel", locale=message.from_user.language_code))
 
     if channels.find_one_and_delete({"channel_id": channel.id}) is None:
-        await message.reply_text(unlisted_channel)
+        await message.reply_text(_("unlisted_channel", locale=message.from_user.language_code))
     else:
-        await message.reply_text(successfully_removed.format(channel.title, channel.id))
+        await message.reply_text(_("successfully_removed", locale=message.from_user.language_code, name=channel.title,
+                                   id=channel.id))
