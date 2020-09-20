@@ -19,17 +19,18 @@
 from pyrogram import filters
 from pyrogram.types import Message, Update, CallbackQuery
 
-from .mongo import admins
+from .mongo import users
 
 
 async def is_admin_filter(_, __, update: Update):
-    return bool(isinstance(update, Message) and not update.from_user or admins.find_one({"user_id": update.chat.id}))
+    return bool(isinstance(update, Message) and not update.from_user or users.find_one({"admin": True,
+                                                                                        "user_id": update.chat.id}))
 
 is_admin = filters.create(is_admin_filter)
 
 
 async def no_admins_filter(_, __, update: Update):
-    return bool(isinstance(update, Message) and admins.estimated_document_count() == 0)
+    return bool(isinstance(update, Message) and users.count_documents({"admin": True}) == 0)
 
 no_admins = filters.create(no_admins_filter)
 
