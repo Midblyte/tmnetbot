@@ -59,7 +59,7 @@ All messages will be forwarded here.
 
     TELEGRAM_BOT_TOKEN  
 
-Get it from https://telegram.me/botfather. Here's how you can get it:
+**Required**. Get it from https://telegram.me/botfather. Here's how you can get it:
 - Send the **/start** command
 - Type **/newbot**
 - Send your bot's name
@@ -69,7 +69,7 @@ Get it from https://telegram.me/botfather. Here's how you can get it:
     TELEGRAM_API_ID
     TELEGRAM_API_HASH
 
-Get them from https://my.telegram.com/apps. Here's how you can get it:
+**Required**. Get them from https://my.telegram.com/apps. Here's how you can get it:
 - Login with your phone number
 - Create a new application: write the **app title** and a **short name**. The **URL** is not required
 - Click on **Create application**, then the **api_id** and the **api_hash** will show up. 
@@ -78,7 +78,7 @@ Get them from https://my.telegram.com/apps. Here's how you can get it:
 
     MONGO_URL
 
-Get it from https://mongodb.com. Here's how you can get it:
+**Required**. Get it from https://mongodb.com. Here's how you can get it:
 - Register on https://www.mongodb.com/cloud/atlas/signup
 (MongoDB Atlas is MongoDB over the cloud: this way, you won't have to worry about installing and configuring your
 databases locally)
@@ -93,7 +93,7 @@ databases locally)
 
     NETWORK_SHORT_NAME
     
-Let it be anything you want (optional, defaults to `tmnetbot`).
+**Optional** (defaults to `tmnetbot`). Let it be anything you want ().
 It is used both as database name and prefix of the session file
 
 ###### The correct format of the .env file is `KEY = VALUE`. For each variable give it its own line.
