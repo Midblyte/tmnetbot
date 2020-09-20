@@ -29,7 +29,7 @@ from .utils.time import MINUTES_PER_DAY
 
 mongo = MongoClient(config.MONGO_URL)
 networkdb: Database = mongo[config.NETWORK_SHORT_NAME]
-admins: Collection = networkdb.admins
+users: Collection = networkdb.users
 channels: Collection = networkdb.channels
 options_collection: Collection = networkdb.options
 options: Callable[[str], Any] = lambda field: options_collection.find_one({}, projection=[field]).get(field)
