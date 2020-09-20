@@ -16,23 +16,28 @@
 # You should have received a copy of the GNU General Public License
 # along with tmnetbot.  If not, see <https://www.gnu.org/licenses/>.
 
+import os
+
 from pyrogram import idle
 
 from . import mongo, periodic_task
+from .internationalization import translator
 from .mongo import admins
 from .telegram import telegram
+
+
+_ = translator("cli", locale=os.getenv("CLI_LOCALE"))
 
 
 def main():
     mongo.init()
     telegram.start()
     periodic_task.start()
-    print("Bot on")
+    print(_("bot_on"))
 
     if admins.estimated_document_count() == 0:
-        print("[!] Usa /makemeadmin per diventare admin senza intervenire manualmente")
-        print("[!] dal database. Funziona solamente quando non è rilevato alcun admin.")
+        print(_("get_adminship"))
 
     idle()
-    print("Il bot verrà fermato.\n")
+    print(_("bot_off"), end="\n\n")
     telegram.stop()

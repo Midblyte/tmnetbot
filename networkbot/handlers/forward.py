@@ -26,51 +26,18 @@ from pyrogram.methods.chats.get_chat_members import Filters
 from pyrogram.types import Message, ChatMember, CallbackQuery, InlineKeyboardMarkup as Keyboard
 
 from .. import filters as custom_filters
+from ..internationalization import translator
 from ..utils.time import fmt_time, fmt_mins
-from ..utils.keyboards import select_double_time_keyboard, from_text, to_text, select_double_time_header, confirm_btn
+from ..utils.keyboards import select_double_time_keyboard, select_double_time_header, confirm_btn
 from ..mongo import channels, options
 from ..telegram import telegram
 
 
 _PREFIX = "forward"
 
+_, _g = translator(_PREFIX), translator("general"),
+
 _path = functools.partial(custom_filters.arguments, _PREFIX)
-
-not_a_channel = "\
-Devi inoltrare da un canale!"
-
-im_not_an_admin = "\
-Non sono admin di quel canale!"
-
-youre_not_an_admin = "\
-Non sei admin di quel canale!"
-
-not_part_of_the_network = "\
-Il canale non fa parte del network!"
-
-not_allowed_until = "\
-Non puoi inoltrare altro. Ti sarà permesso di inviare altri messaggi in data {}"
-
-message_sent = "\
-Messaggio inviato!"
-
-go_to_message = "\
-Vai al messaggio"
-
-already_in_queue = "\
-Un messaggio da questo canale è già in attesa per l'invio"
-
-loading = "Caricamento..."
-
-
-select_time_range = f"""\
-Seleziona la fascia oraria in cui desideri che il messaggio sia inviato
-
-Fascia oraria consentita: {{general_start}} - {{general_end}}
-
-Hai impostato:
-{from_text}: {{start}}
-{to_text}: {{end}}"""
 
 
 @telegram.on_message(filters.private & filters.forwarded)
@@ -78,20 +45,20 @@ async def forward(_, message: Message):
     tg_channel = message.forward_from_chat
 
     if not tg_channel or tg_channel.type != "channel":
-        return await message.reply_text(not_a_channel)
+        return await message.reply_text(_("not_a_channel", locale=message.from_user.language_code))
 
     doc_channel: Optional[Dict] = channels.find_one({"channel_id": tg_channel.id})
 
     if doc_channel is None:
-        return await message.reply_text(not_part_of_the_network)
+        return await message.reply_text(_("not_part_of_the_network", locale=message.from_user.language_code))
 
     try:
         channel_admins: List[ChatMember] = await tg_channel.get_members(filter=Filters.ADMINISTRATORS)
     except RPCError:
-        return await message.reply_text(im_not_an_admin)
+        return await message.reply_text(_("im_not_an_admin", locale=message.from_user.language_code))
 
     if message.from_user.id not in map(lambda a: a.user.id, channel_admins):
-        return await message.reply_text(youre_not_an_admin)
+        return await message.reply_text(_("youre_not_an_admin", locale=message.from_user.language_code))
 
     last_send: datetime = doc_channel.get("last_send") or datetime.min
 
@@ -100,20 +67,21 @@ async def forward(_, message: Message):
     diff: timedelta = datetime.utcnow() - last_send
 
     if diff.total_seconds() < delta:
-        return await message.reply_text(not_allowed_until.format(fmt_time(last_send + timedelta(seconds=delta))))
+        return await message.reply_text(_("not_allowed_until", locale=message.from_user.language_code,
+                                          date=fmt_time(last_send + timedelta(seconds=delta))))
 
     if doc_channel.get("scheduling").get("in_queue"):
-        return await message.reply_text(already_in_queue)
+        return await message.reply_text(_("already_in_queue", locale=message.from_user.language_code))
 
-    sent_message, start, end = await message.reply_text(loading), options("time_range_start"), options("time_range_end")
+    sent_message = await message.reply_text(_g("loading", locale=message.from_user.language_code))
+    start, end = options("time_range_start"), options("time_range_end")
 
     channel_id, msg_id = tg_channel.id, message.forward_from_message_id
 
     time_keyboard = select_double_time_keyboard(_PREFIX, start, end, ['set', channel_id, msg_id])
 
-    fmt_text = select_time_range.format(**{k: fmt_mins(v) for k, v in
-                                           {"start": start, "end": end, "general_start": start, "general_end": end}
-                                           .items()})
+    fmt_text = _("select_time_range", locale=message.from_user.language_code, **{k: fmt_mins(v) for k, v in {"start":
+                 start, "end": end, "general_start": start, "general_end": end}.items()})
 
     await sent_message.edit_text(fmt_text, reply_markup=Keyboard([
         select_double_time_header(),
@@ -130,8 +98,9 @@ async def select_forward_time(_, callback_query: CallbackQuery):
 
     time_keyboard = select_double_time_keyboard(_PREFIX, start, end, ['set', channel_id, msg_id])
 
-    fmt_text = select_time_range.format(general_start=options("time_range_start"),
-                                        general_end=options("time_range_end"), start=fmt_mins(start), end=fmt_mins(end))
+    fmt_text = _("select_time_range", locale=callback_query.from_user.language_code,
+                 general_start=options("time_range_start"), general_end=options("time_range_end"),
+                 start=fmt_mins(start), end=fmt_mins(end))
 
     await callback_query.message.edit_text(fmt_text, reply_markup=Keyboard([
         select_double_time_header(),
@@ -148,6 +117,7 @@ async def confirm_forward_time(_, callback_query: CallbackQuery):
 
     if channels.find_one_and_update({"channel_id": channel_id, "scheduling.in_queue": False}, {"$set": {"scheduling": {
             "in_queue": True, "message_id": msg_id, "time_from": start, "time_to": end}}}) is None:
-        return await callback_query.message.edit_text(already_in_queue)
+        return await callback_query.message.edit_text(_("already_in_queue",
+                                                        locale=callback_query.from_user.language_code))
 
-    await callback_query.message.edit_text("Ok")
+    await callback_query.message.edit_text(_g("ok"))

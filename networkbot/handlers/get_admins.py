@@ -23,10 +23,13 @@ from pyrogram.types import Message, CallbackQuery
 from pyrogram.types.user_and_chats.user import Link
 
 from .. import filters as custom_filters
+from ..internationalization import translator
 from ..utils.documents import get_documents_range, format_documents_list
 from ..mongo import admins
 from ..telegram import telegram
 
+
+_ = translator("get_admins")
 
 _mention_user: Callable[[Dict], str] = lambda c: Link.format(f"tg://user?id={c.get('user_id')}", c.get("name"), "html")
 
@@ -38,8 +41,8 @@ Elenco degli admin:\n\n\n{admins} "
 
 
 @telegram.on_message(filters.private & filters.command(["amministratori", "admins", "admin"]) & custom_filters.is_admin)
-async def get_admins(_, message: Message):
-    await _navigate(await message.reply_text(loading_admins))
+async def get_admins(__, message: Message):
+    await _navigate(await message.reply_text(_("loading_admins", locale=message.from_user.language_code)))
 
 
 @telegram.on_callback_query(filters.create(lambda _, __, cq: cq.data.startswith(f"{admins.name}_nav_")))
@@ -57,4 +60,4 @@ async def _navigate(message: Message, offset=0):
     fmt_admins = format_documents_list(documents, lambda c: f"{_mention_user(c)}\n"
                                                             f"ID: {c.get('user_id')}")
 
-    await message.edit_text(admins_list.format(admins=fmt_admins), reply_markup=keyboard)
+    await message.edit_text(_("admins_list", locale=message.from_user.language_code, admins=fmt_admins), reply_markup=keyboard)

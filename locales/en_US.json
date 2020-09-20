@@ -1,0 +1,43 @@
+{
+  "cli.bot_on": "Bot online.",
+  "cli.bot_off": "Bot is shutdowning.",
+  "cli.get_adminship": "[!] Use /makemeadmin to become admin without manual intervention\n[!] from the database. It only works when no admin is detected.",
+
+  "schedule.go_to_the_message": "Go to the messagge.",
+  "schedule.successfully_forwarded": "Message has been forwarded.",
+
+  "general.confirm": "Confirm",
+  "general.loading": "Loading...",
+  "general.ok": "Ok",
+
+  "time.from": "From",
+  "time.to": "To",
+  "time.timezone": "UTC",
+  "time.never": "Never",
+  "time.date_full_format": "%d-%m-%Y %H:%M:%S",
+  "time.interval_full_format": "%d days, %H hours, %M minutes, %S seconds",
+
+  "add_channel.usage": "Usage: /add @Username\n\nAlias: /aggiungi, /inserisci",
+  "add_channel.unexisting_channel": "You can't add unexisting channel.",
+  "add_channel.not_a_channel": "You can't add this chat since it's not a channel.",
+  "add_channel.not_an_admin": "You cannot add channels of which I have not been made administrator.",
+  "add_channel.already_in_list": "The channel is already in the list.",
+  "add_channel.successfully_added": "The channel <b>{name}</b> has been added (ID {id}).",
+
+  "declassify.usage": "Usage: /declassify @Username\n\nAlias: /declassa",
+  "declassify.not_in_list": "L'admin non è nella lista.",
+  "declassify.successfully_removed": "The user '{mention}' (ID {id}) has been removed from the administrators list.",
+
+  "forward.not_a_channel": "You can't forward from this chat as it is not a channel.",
+  "forward.im_not_an_admin": "You can't forward from channels of which I have not been made administrator.",
+  "forward.youre_not_an_admin": "You can't forward from channels of which you're not administrator.",
+  "forward.not_part_of_the_network": "You can't forward from channels which are not part of the network.",
+  "forward.not_allowed_until": "You can't forward anything else. You will be allowed to send other messages on {date}.",
+  "forward.already_in_queue": "A message from this channel is already waiting for sending.",
+  "forward.select_time_range": "Select the time slot in which you want the message to be sent\n\nAllowed time range: {general_start} - {general_end}\n\nYou have set:\nFrom: {start}\nTo: {end}",
+
+  "get_admins.loading_admins": "Loading administrators list...",
+  "get_admins.admins_list": "List of administrators:\n\n\n{admins} ",
+
+  "start.info": "Hello {mention},\n\nDigit /help for more information about the bot"
+}

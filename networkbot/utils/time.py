@@ -20,22 +20,45 @@ from datetime import datetime
 
 import pytz
 
+from ..internationalization import translator
+
+
+_ = translator("time")
+
 MINUTES_PER_DAY = 24 * 60
 
 
-def fmt_time(dt, fmt="%d/%m/%Y %H:%M:%S", timezone="Europe/Rome", never="mai") -> str:
+def fmt_time(dt) -> str:
+    # TODO: "locale" param is missing
     if dt is None:
-        return never
-    return (pytz.utc.localize(dt) if dt.tzinfo is None else dt).astimezone(pytz.timezone(timezone)).strftime(fmt)
+        return _("never")
+
+    return (pytz.utc.localize(dt) if dt.tzinfo is None else dt) \
+        .astimezone(pytz.timezone(_("timezone"))) \
+        .strftime(_("full_format"))
 
 
-def fmt_time_duration(seconds: int, fmt="{d}gg {H}h {M}m {S}s"):
-    return fmt.format(
-        d=int(seconds / 60 / 60 / 24),
-        H=int(seconds / 60 / 60 % 24),
-        M=int(seconds / 60 % 60),
-        S=seconds % 60
-    )
+def fmt_time_duration(seconds: int):
+    # TODO: "locale" param is missing
+    fmt = _("interval_full_format")
+
+    for k, v in (
+             # Days
+             ('d', int(seconds / 60 / 60 / 24)),
+
+             # Hours
+             ('total_H', int(seconds / 60 / 60)),
+             ('H', int(seconds / 60 / 60 % 24)),
+
+             # Minutes
+             ('total_M', int(seconds / 60)),
+             ('M', int(seconds / 60 % 60)),
+
+             ('total_S', seconds),
+             ('S', seconds % 60)):
+        fmt = fmt.replace(f"%{k}", v)
+
+    return fmt
 
 
 def localize_minutes(minutes: int, timezone=pytz.timezone("Europe/Rome")) -> int:

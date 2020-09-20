@@ -16,6 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with tmnetbot.  If not, see <https://www.gnu.org/licenses/>.
 
+from html import escape
 from typing import Union, Iterable
 
 from pyrogram import filters, Client
@@ -24,53 +25,38 @@ from pyrogram.methods.chats.get_chat_members import Filters
 from pyrogram.types import Message, Chat, ChatPreview, ChatMember
 
 from .. import filters as custom_filters
+from ..internationalization import translator
 from ..mongo import channels
 from ..telegram import telegram
 
 
-usage = "\
-Uso: /aggiungi @Username\n\nAlias: /add, /inserisci"
-
-unexisting_channel = "\
-Canale inesistente"
-
-not_a_channel = "\
-Non è un canale"
-
-im_not_admin = "\
-Non sono admin di quel canale"
-
-already_in_list_channel = "\
-Il canale è già nella lista."
-
-successfully_added = "\
-Inserito {} ({})."
+_ = translator("add_channel")
 
 
 @telegram.on_message(filters.private & filters.text & filters.command(["add", "aggiungi", "inserisci"]) &
                      custom_filters.is_admin)
 async def add_channel(client: Client, message: Message):
     if ' ' not in message.text:
-        return await message.reply_text(usage)
+        return await message.reply_text(_("usage", locale=message.from_user.language_code))
 
     channel_as_text = message.text.split(' ')[1]
 
     try:
         channel: Union[Chat, ChatPreview] = await client.get_chat(channel_as_text)
     except RPCError:
-        return await message.reply_text(unexisting_channel)
+        return await message.reply_text(_("unexisting_channel", locale=message.from_user.language_code))
 
     if channel.type != "channel":
-        return await message.reply_text(not_a_channel)
+        return await message.reply_text(_("not_a_channel", locale=message.from_user.language_code))
 
     try:
         channel_admins: Iterable[ChatMember] = filter(lambda m: not (m.user.is_deleted or m.user.is_bot),
                                                       await channel.get_members(filter=Filters.ADMINISTRATORS))
     except RPCError:
-        return await message.reply_text(im_not_admin)
+        return await message.reply_text(_("not_an_admin", locale=message.from_user.language_code))
 
     if channels.find_one({"channel_id": channel.id}):
-        return await message.reply_text(already_in_list_channel)
+        return await message.reply_text(_("already_in_list", locale=message.from_user.language_code))
 
     channels.insert_one({"channel_id": channel.id,
                          "name": channel.title,
@@ -84,4 +70,5 @@ async def add_channel(client: Client, message: Message):
                              "time_to": None
                          }})
 
-    await message.reply_text(successfully_added.format(channel.title, channel.id))
+    await message.reply_text(_("successfully_added", locale=message.from_user.language_code,
+                               name=escape(channel.title), id=channel.id))

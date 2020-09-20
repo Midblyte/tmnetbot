@@ -1,0 +1,44 @@
+{
+  "cli.bot_on": "Il bot è ora online.",
+  "cli.bot_off": "Il bot verrà fermato.",
+  "cli.get_adminship": "[!] Usa /makemeadmin per diventare admin senza intervenire manualmente\n[!] dal database. Funziona solamente quando non è rilevato alcun admin.",
+
+  "schedule.go_to_the_message": "Vai al messaggio.",
+  "schedule.successfully_forwarded": "Messaggio inoltrato.",
+
+  "general.confirm": "Conferma",
+  "general.loading": "Caricamento...",
+  "general.ok": "Ok",
+
+  "time.from": "Da",
+  "time.to": "A",
+  "time.timezone": "Europe/Rome",
+  "time.never": "Mai",
+  "time.date_full_format": "%d/%m/%Y %H:%M:%S",
+  "time.interval_full_format": "%d giorni, %H ore, %M minuti, %S secondi",
+
+  "add_channel.usage": "Uso: /aggiungi @Username\n\nAlias: /add, /inserisci.",
+  "add_channel.unexisting_channel": "Non puoi aggiungere un canale inesistente.",
+  "add_channel.not_a_channel": "Non puoi aggiungere questa chat siccome non è un canale.",
+  "add_channel.not_an_admin": "Non puoi aggiungere canali di cui non sono stato reso amministratore.",
+  "add_channel.already_in_list": "Il canale è già nella lista.",
+  "add_channel.successfully_added": "Inserito il canale <b>{name}</b> (ID {id}).",
+
+  "declassify.usage": "Uso: /declassa @Username\n\nAlias: /declassify",
+  "declassify.not_in_list": "L'admin non è nella lista.",
+  "declassify.successfully_removed": "L'utente '{mention}' (ID {id}) è stato rimosso dalla lista degli amministratori.",
+
+  "forward.not_a_channel": "Non puoi inoltrare da questa chat siccome non è un canale.",
+  "forward.im_not_an_admin": "Non puoi inoltrare da canali di cui non sono stato reso amministratore.",
+  "forward.youre_not_an_admin": "Non puoi inoltrare da canali di cui non sei amministratore.",
+  "forward.not_part_of_the_network": "Non puoi inoltrare da canali che non sono parte del network.",
+  "forward.not_allowed_until": "Non puoi inoltrare nient'altro. Ti sarà permesso di inviare altri messaggi in data {date}.",
+  "forward.already_in_queue": "Un messaggio da questo canale è già in attesa per l'invio.",
+  "forward.select_time_range": "Seleziona la fascia oraria in cui desideri che il messaggio sia inviato\n\nFascia oraria consentita: {general_start} - {general_end}\n\nHai impostato:\nDa: {start}\nA: {end}",
+
+  "get_admins.loading_admins": "Caricamento lista amministratori...",
+  "get_admins.admins_list": "Elenco degli amministratori:\n\n\n{admins} ",
+
+  "start.info": "Ciao {mention},\n\nDigita /aiuto per maggiori informazioni sul funzionamento del bot"
+
+}

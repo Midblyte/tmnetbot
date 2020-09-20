@@ -25,17 +25,14 @@ import pymongo
 from pyrogram.errors import RPCError
 from pyrogram.types import Message, InlineKeyboardMarkup as Keyboard, InlineKeyboardButton as Button
 
+from .internationalization import translator
 from .utils.time import MINUTES_PER_DAY
 from .mongo import options, channels
 from .network import network
 from .telegram import telegram
 
 
-successfully_forwarded = "\
-Messaggio inoltrato"
-
-go_to_the_message = "\
-Vai al messaggio"
+_ = translator("schedule")
 
 
 class PeriodicMongoTask:
@@ -100,11 +97,13 @@ class PeriodicMongoTask:
         channel_username, msg_id = sent_message.chat.username, sent_message.message_id
         reply_markup = None
         if channel_username:
-            reply_markup = Keyboard([[Button(go_to_the_message, url=f"https://t.me/{channel_username}/{msg_id}")]])
+            reply_markup = lambda locale: Keyboard([[
+                Button(_("go_to_the_message", locale), url=f"https://t.me/{channel_username}/{msg_id}")]])
 
         for administrator_id in to_be_sent.get("administrators"):
             try:
-                telegram.send_message(administrator_id, successfully_forwarded, reply_markup=reply_markup)
+                telegram.send_message(administrator_id, _("successfully_forwarded"), reply_markup=reply_markup and
+                                      reply_markup("it_IT"))
             except RPCError:
                 pass
 

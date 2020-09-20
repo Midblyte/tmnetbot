@@ -15,31 +15,27 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with tmnetbot.  If not, see <https://www.gnu.org/licenses/>.
+from html import escape
+from typing import List
 
 from pyrogram import filters, Client
 from pyrogram.errors import RPCError
-from pyrogram.types import Message
+from pyrogram.types import Message, User
 
 from .promote import not_an_user
 from .. import filters as custom_filters
+from ..internationalization import translator
 from ..mongo import admins
 from ..telegram import telegram
 
 
-usage = "\
-Uso: /declassa @Username\n\nAlias: /declassify"
-
-unlisted_admin = "\
-L'admin non è nella lista."
-
-successfully_removed = "\
-Rimosso {} ({}) da admin."
+_ = translator("declassify")
 
 
 @telegram.on_message(filters.private & filters.command(["declassa", "declassify"]) & custom_filters.is_admin)
 async def declassify(client: Client, message: Message):
     if ' ' not in message.text:
-        return await message.reply_text(usage)
+        return await message.reply_text(_("usage", locale=message.from_user.language_code))
 
     user_as_text = message.text.split(' ')[1]
 
@@ -49,6 +45,7 @@ async def declassify(client: Client, message: Message):
         return await message.reply_text(not_an_user)
 
     if admins.find_one_and_delete({"user_id": admin.id}) is None:
-        await message.reply_text(unlisted_admin)
+        await message.reply_text(_("unlisted_admin", locale=message.from_user.language_code))
     else:
-        await message.reply_text(successfully_removed.format(admin.first_name, admin.id))
+        await message.reply_text(_("successfully_removed", locale=message.from_user.language_code,
+                                   mention=admin.mention, first_name=escape(admin.first_name), id=admin.id))

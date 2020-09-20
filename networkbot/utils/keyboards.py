@@ -21,15 +21,12 @@ from typing import Iterable, Any, List
 from pyrogram.types import InlineKeyboardButton as Button
 
 from .time import fix_minutes
+from ..internationalization import translator
 
+
+_ = translator("general")
 
 _BUTTONS = ('1m', 1), ('15m', 15), ('1h', 60), ('4h', 240)
-
-from_text = "Da"
-
-to_text = "A"
-
-confirm_text = "Conferma"
 
 
 def select_time_keyboard(prefix: str, time: int, args: Iterable[Any] = None, buttons=_BUTTONS):
@@ -74,7 +71,8 @@ def select_double_time_keyboard(prefix: str, start: int, end: int, args: Iterabl
 
 
 def select_double_time_header() -> List[Button]:
-    return [dummy_btn(from_text), dummy_btn(to_text)]
+    # TODO: "locale" param is missing
+    return [dummy_btn(_("from_time")), dummy_btn(_("to_time"))]
 
 
 def select_double_time_row(label: str, value: int, prefix: str, start: int, end: int, args: Iterable[Any] = None) \
@@ -109,4 +107,5 @@ def dummy_btn(label: str) -> Button:
 
 
 def confirm_btn(prefix: str, args: Iterable[Any]) -> Button:
-    return custom_btn(confirm_text, prefix, args)
+    # TODO: "locale" param is missing
+    return custom_btn(_("confirm"), prefix, args)

@@ -19,15 +19,14 @@
 from pyrogram import filters
 from pyrogram.types import Message
 
+from ..internationalization import translator
 from ..telegram import telegram
 
 
-start_info = """\
-Ciao {},
-
-Digita /aiuto per maggiori informazioni sul funzionamento del bot"""
+_ = translator("start")
 
 
 @telegram.on_message(filters.private & filters.command("start"))
 async def start(_, message: Message):
-    await message.reply_text(start_info.format(message.from_user.mention))
+    await message.reply_text(_("info", locale=message.from_user.language_code, first_name=message.from_user.first_name,
+                               mention=message.from_user.mention))
