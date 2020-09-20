@@ -39,6 +39,8 @@
   "get_admins.loading_admins": "Caricamento lista amministratori...",
   "get_admins.admins_list": "Elenco degli amministratori:\n\n\n{admins} ",
 
+  "groups.channels_only": "Posso essere aggiunto solo nei canali",
+
   "makemeadmin.info": "<b>Ora sei admin</b>.\n\nNota: a partire da questo momento il comando non funzionerà più.",
 
   "remove_channel.usage": "Uso: /rimuovi @Username\n\nAlias: /remove, /rm",
