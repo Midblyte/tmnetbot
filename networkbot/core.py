@@ -22,7 +22,7 @@ from pyrogram import idle
 
 from . import mongo, periodic_task, config
 from .internationalization import translator
-from .mongo import admins
+from .mongo import users
 from .telegram import telegram
 
 
@@ -35,7 +35,7 @@ def main():
     periodic_task.start()
     print(_("bot_on"))
 
-    if admins.estimated_document_count() == 0:
+    if users.count_documents({"admin": True}) == 0:
         print(_("get_adminship"))
 
     idle()
