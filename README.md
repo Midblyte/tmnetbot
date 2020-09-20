@@ -95,6 +95,12 @@ databases locally)
     
 **Optional** (defaults to `tmnetbot`). Let it be anything you want ().
 It is used both as database name and prefix of the session file
+<hr>
+
+    CLI_LOCALE
+    
+**Optional** (defaults to `en_US`).
+It's the language the messages will be in, when printing messages in console
 
 ###### The correct format of the .env file is `KEY = VALUE`. For each variable give it its own line.
 
