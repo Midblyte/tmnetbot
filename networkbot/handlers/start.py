@@ -20,6 +20,7 @@ from pyrogram import filters
 from pyrogram.types import Message
 
 from ..internationalization import translator
+from ..mongo import users
 from ..telegram import telegram
 
 
@@ -30,3 +31,8 @@ _ = translator("start")
 async def start(_, message: Message):
     await message.reply_text(_("info", locale=message.from_user.language_code, first_name=message.from_user.first_name,
                                mention=message.from_user.mention))
+
+    users.update_one({"user_id": message.from_user.id}, {"user_id": message.from_user.id,
+                                                         "name": message.from_user.first_name,
+                                                         "notifications": True,
+                                                         "admin": False}, upsert=True)
