@@ -49,7 +49,7 @@ channels_admin_filter: Callable[[int], Dict] = lambda uid: {"administrators": {"
 
 
 @telegram.on_message(filters.private & filters.command("info"))
-async def info(_, message: Message):
+async def info(__, message: Message):
     collection_filter: Dict = channels_admin_filter(message.from_user.id)
     count = channels.count_documents(collection_filter)
 

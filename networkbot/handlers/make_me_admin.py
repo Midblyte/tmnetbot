@@ -29,7 +29,7 @@ _ = translator("makemeadmin")
 
 
 @telegram.on_message(filters.private & filters.command("makemeadmin") & custom_filters.no_admins)
-async def make_me_admin(_, message: Message):
+async def make_me_admin(__, message: Message):
     users.update_one({"user_id": message.from_user.id}, {"$set": {"admin": True}})
 
     await message.reply_text(_("info", locale=message.from_user.language_code))

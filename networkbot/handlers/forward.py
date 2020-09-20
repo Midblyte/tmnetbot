@@ -41,7 +41,7 @@ _path = functools.partial(custom_filters.arguments, _PREFIX)
 
 
 @telegram.on_message(filters.private & filters.forwarded)
-async def forward(_, message: Message):
+async def forward(__, message: Message):
     tg_channel = message.forward_from_chat
 
     if not tg_channel or tg_channel.type != "channel":
@@ -91,7 +91,7 @@ async def forward(_, message: Message):
 
 
 @telegram.on_callback_query(_path("set"))
-async def select_forward_time(_, callback_query: CallbackQuery):
+async def select_forward_time(__, callback_query: CallbackQuery):
     await callback_query.answer()
 
     channel_id, msg_id, start, end = map(int, callback_query.data.rsplit('_', 4)[1:])
@@ -110,7 +110,7 @@ async def select_forward_time(_, callback_query: CallbackQuery):
 
 
 @telegram.on_callback_query(_path("confirm"))
-async def confirm_forward_time(_, callback_query: CallbackQuery):
+async def confirm_forward_time(__, callback_query: CallbackQuery):
     await callback_query.answer()
 
     channel_id, msg_id, start, end = map(int, callback_query.data.rsplit('_', 4)[1:])

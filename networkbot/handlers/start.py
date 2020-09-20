@@ -28,7 +28,7 @@ _ = translator("start")
 
 
 @telegram.on_message(filters.private & filters.command("start"))
-async def start(_, message: Message):
+async def start(__, message: Message):
     await message.reply_text(_("info", locale=message.from_user.language_code, first_name=message.from_user.first_name,
                                mention=message.from_user.mention))
 
