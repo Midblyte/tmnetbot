@@ -19,7 +19,7 @@
 from . import mongo, handlers, core, upgrader
 
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 __license__ = "GNU General Public License v3 or later (GPLv3+)"
 __copyright__ = "Copyright (C) 2020 Midblyte <https://github.com/Midblyte>"
 
