@@ -20,7 +20,6 @@ from pyrogram import filters, Client
 from pyrogram.errors import RPCError
 from pyrogram.types import Message, Chat
 
-from .add_channel import not_a_channel
 from .. import filters as custom_filters
 from ..internationalization import translator
 from ..mongo import channels
