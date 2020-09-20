@@ -27,7 +27,7 @@ _ = translator("groups")
 
 
 @telegram.on_message((filters.group_chat_created | filters.new_chat_members) & filters.group)
-async def added_in_a_group(_, message: Message):
+async def added_in_a_group(__, message: Message):
     await message.reply_text(_("channels_only", locale=message.from_user.language_code))
 
     await message.chat.leave()
