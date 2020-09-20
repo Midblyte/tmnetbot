@@ -16,10 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with tmnetbot.  If not, see <https://www.gnu.org/licenses/>.
 
-from .scheduler import periodic_task
-from .config import config
-from .core import main
-from . import handlers
+from . import mongo, handlers, core, upgrader
 
 
 __version__ = "0.1.0"
@@ -28,6 +25,6 @@ __copyright__ = "Copyright (C) 2020 Midblyte <https://github.com/Midblyte>"
 
 
 def start():
-    from . import upgrader
+    upgrader.upgrade()
 
     core.main()

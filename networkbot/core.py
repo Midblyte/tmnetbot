@@ -20,7 +20,9 @@ import os
 
 from pyrogram import idle
 
-from . import mongo, periodic_task, config
+from . import mongo
+from .config import config
+from .scheduler import periodic_task
 from .internationalization import translator
 from .mongo import users
 from .telegram import telegram
