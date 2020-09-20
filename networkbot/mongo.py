@@ -35,11 +35,14 @@ options: Callable[[str], Any] = lambda field: options_collection.find_one({}, pr
 
 
 def init():
+    from . import __version__
+
     defaults = {
         "channels_delta": 3 * MINUTES_PER_DAY * 60,  # Each channel admin can send a message every 3 days, in seconds
         "network_delta": 30 * 60,  # Messages are sent within a delay of 30 minutes, in seconds
         "time_range_start": 8 * 60,  # Posting is enabled since 08:00 a.m. UTC, in minutes
         "time_range_end": 16 * 60,  # Posting is enabled until 08:00 p.m UTC, in minutes
+        "__version__": __version__
     }
 
     options_collection.update_one({}, {"$setOnInsert": defaults}, upsert=True)
