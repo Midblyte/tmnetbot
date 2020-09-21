@@ -22,7 +22,6 @@ from pyrogram import filters, Client
 from pyrogram.errors import RPCError
 from pyrogram.types import Message, User
 
-from .promote import not_an_user
 from .. import filters as custom_filters
 from ..internationalization import translator
 from ..mongo import users
@@ -42,7 +41,7 @@ async def declassify(client: Client, message: Message):
     try:
         admin: User = await client.get_users(user_as_text)
     except RPCError:
-        return await message.reply_text(not_an_user)
+        return await message.reply_text(_("not_an_user", locale=message.from_user.language_code))
 
     if users.find_one_and_delete({"admin": True, "user_id": admin.id}) is None:
         await message.reply_text(_("unlisted_admin", locale=message.from_user.language_code))
