@@ -16,6 +16,8 @@
 # You should have received a copy of the GNU General Public License
 # along with tmnetbot.  If not, see <https://www.gnu.org/licenses/>.
 
+from html import escape
+
 from pyrogram import filters, Client
 from pyrogram.types import Message
 from pyrogram.errors import RPCError
@@ -46,4 +48,4 @@ async def promote(client: Client, message: Message):
 
     users.insert_one({"user_id": admin.id, "name": admin.first_name, "admin": True})
     await message.reply_text(_("successfully_promoted", locale=message.from_user.language_code,
-                               mention=admin.mention, first_name=admin.first_name, id=admin.id))
+                               mention=admin.mention, first_name=escape(admin.first_name), id=admin.id))
