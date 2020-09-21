@@ -35,7 +35,7 @@ async def start(__, message: Message):
                                first_name=escape(message.from_user.first_name),
                                mention=message.from_user.mention))
 
-    users.update_one({"user_id": message.from_user.id}, {"user_id": message.from_user.id,
-                                                         "name": message.from_user.first_name,
-                                                         "notifications": True,
-                                                         "admin": False}, upsert=True)
+    users.update_one({"user_id": message.from_user.id}, {"$setOnInsert": {"user_id": message.from_user.id,
+                                                                          "name": message.from_user.first_name,
+                                                                          "notifications": True,
+                                                                          "admin": False}}, upsert=True)
