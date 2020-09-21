@@ -21,12 +21,13 @@ import functools
 from pyrogram import filters
 from pyrogram.types import Message, CallbackQuery, InlineKeyboardMarkup as Keyboard
 
-from .. import periodic_task, filters as custom_filters
+from .. import filters as custom_filters
 from ..utils.keyboards import select_double_time_keyboard, custom_btn, select_double_time_header, confirm_btn, \
     select_time_keyboard
 from ..mongo import options, users, options_collection
 from ..telegram import telegram
 from ..utils.time import fmt_mins, fmt_time_duration
+from ..scheduler import periodic_task
 
 
 _PREFIX = "settings"
