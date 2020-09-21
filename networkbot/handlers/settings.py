@@ -24,7 +24,7 @@ from pyrogram.types import Message, CallbackQuery, InlineKeyboardMarkup as Keybo
 from .. import periodic_task, filters as custom_filters
 from ..utils.keyboards import select_double_time_keyboard, custom_btn, select_double_time_header, confirm_btn, \
     select_time_keyboard
-from ..mongo import options, admins, options_collection
+from ..mongo import options, users, options_collection
 from ..telegram import telegram
 from ..utils.time import fmt_mins, fmt_time_duration
 
@@ -104,7 +104,7 @@ async def settings_forward_time_range_confirm(_, callback_query: CallbackQuery):
 
     start, end = map(int, callback_query.data.rsplit('_', 2)[1:])
 
-    if admins.find_one({"user_id": callback_query.from_user.id}) is None:
+    if users.find_one({"user_id": callback_query.from_user.id, "admin": True}) is None:
         return await callback_query.message.edit_text(not_allowed)
 
     options_collection.find_one_and_update({}, {"$set": {"time_range_start": start, "time_range_end": end}})
