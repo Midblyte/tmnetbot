@@ -16,6 +16,8 @@
 # You should have received a copy of the GNU General Public License
 # along with tmnetbot.  If not, see <https://www.gnu.org/licenses/>.
 
+from html import escape
+
 from pyrogram import filters
 from pyrogram.types import Message
 
@@ -29,7 +31,8 @@ _ = translator("start")
 
 @telegram.on_message(filters.private & filters.command("start"))
 async def start(__, message: Message):
-    await message.reply_text(_("info", locale=message.from_user.language_code, first_name=message.from_user.first_name,
+    await message.reply_text(_("info", locale=message.from_user.language_code,
+                               first_name=escape(message.from_user.first_name),
                                mention=message.from_user.mention))
 
     users.update_one({"user_id": message.from_user.id}, {"user_id": message.from_user.id,
