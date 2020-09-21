@@ -26,6 +26,7 @@
   "add_channel.successfully_added": "Inserito il canale <b>{name}</b> (ID {id}).",
 
   "declassify.usage": "Uso: /declassa @Username\n\nAlias: /declassify",
+  "declassify.not_an_user": "Impossibile rimuovere una chat che non sia un utente",
   "declassify.not_in_list": "L'utente non è nella lista amministratori.",
   "declassify.successfully_removed": "L'utente '{mention}' (ID {id}) è stato rimosso dalla lista degli amministratori.",
 
@@ -40,6 +41,12 @@
   "get_admins.loading_admins": "Caricamento lista amministratori...",
   "get_admins.admins_list": "Elenco degli amministratori:\n\n{admins}",
 
+  "get_channels.loading_channels": "Caricamento lista canali...",
+  "get_channels.none_in_list": "Non ci sono canali in lista.\nAggiungili con /aggiungi @username",
+  "get_channels.channels_list": "<b>Elenco dei canali</b>:\n\n{channels}",
+  "get_channels.update_admins": "Aggiorna amministratori",
+  "get_channels.admins_list_updated": "Amministratori aggiornati",
+
   "groups.channels_only": "Posso essere aggiunto solo nei canali.",
 
   "info.not_an_admin": "Non sei amministratore di alcun canale.",
@@ -48,11 +55,15 @@
 
   "makemeadmin.info": "<b>Ora sei admin</b>.\n\nNota: a partire da questo momento il comando non funzionerà più.",
 
+  "promote.usage": "Uso: /promuovi @Username\n\nAlias: /promote",
+  "promote.not_an_user": "Impossibile aggiungere una chat che non sia un utente",
+  "promote.already_in_list": "L'utente è già nella lista amministratori.",
+  "promote.successfully_promoted": "L'utente '{mention}' (ID {id}) è stato aggiunto alla lista degli amministratori.",
+
   "remove_channel.usage": "Uso: /rimuovi @Username\n\nAlias: /remove, /rm",
   "remove_channel.not_a_channel": "Non puoi rimuovere questa chat siccome non è un canale.",
   "remove_channel.not_in_list": "Il canale non è nella lista.",
   "remove_channel.successfully_removed": "Rimosso il canale <b>{name}</b> (ID {id}).",
 
   "start.info": "Ciao {mention},\n\nDigita /aiuto per maggiori informazioni sul funzionamento del bot"
-
 }

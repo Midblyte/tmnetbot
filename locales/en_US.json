@@ -26,6 +26,7 @@
   "add_channel.successfully_added": "The channel <b>{name}</b> has been added (ID {id}).",
 
   "declassify.usage": "Usage: /declassify @Username\n\nAlias: /declassa",
+  "declassify.not_an_user": "Can't remove a chat that is not a user.",
   "declassify.not_in_list": "The user is not in the administrators list.",
   "declassify.successfully_removed": "The user '{mention}' (ID {id}) has been removed from the administrators list.",
 
@@ -40,6 +41,12 @@
   "get_admins.loading_admins": "Loading administrators list...",
   "get_admins.admins_list": "List of administrators:\n\n{admins}",
 
+  "get_channels.loading_channels": "Loading channel list...",
+  "get_channels.none_in_list": "There are no channels in the list.\nAdd them with /add @username",
+  "get_channels.channels_list": "<b>List of channels</b>:\n\n{channels}",
+  "get_channels.update_admins": "Update administrators",
+  "get_channels.admins_list_updated": "Administrators have been updated",
+
   "groups.channels_only": "I can only be added in channels.",
 
   "info.not_an_admin": "You are not administrator of any channel.",
@@ -47,6 +54,11 @@
   "info.channels_list": "<b>Channels of which you are admin</b>:\n\n{channels}",
 
   "makemeadmin.info": "<b>Now you are admin</b>.\nNote: starting from this moment the command will not work anymore",
+
+  "promote.usage": "Usage: /promuovi @Username\nAlias: /promote",
+  "promote.not_an_user": "Impossible to add a chat that is not an user.",
+  "promote.already_in_list": "The user is already in administrators list,",
+  "promote.successfully_promoted": "The user '{mention}' (ID {id}) has been added to administrators list.",
 
   "remove_channel.usage": "Usage: /remove @Username\n\nAlias: /rimuovi, /rm",
   "remove_channel.not_a_channel": "You can't remove this chat since it's not a channel.",
