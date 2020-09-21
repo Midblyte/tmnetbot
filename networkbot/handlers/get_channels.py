@@ -25,6 +25,7 @@ from pyrogram.methods.chats.get_chat_members import Filters
 from pyrogram.types import Message, CallbackQuery, InlineKeyboardMarkup as Keyboard
 
 from .. import filters as custom_filters
+from ..internationalization import translator
 from ..utils.documents import get_documents_range, format_documents_list
 from ..utils.arrays import chunk
 from ..utils.channels import can_send_icon
@@ -34,36 +35,19 @@ from ..utils.keyboards import custom_btn, dummy_btn
 from ..utils.time import fmt_time
 
 
-_PREFIX = channels.name
+_ = translator("get_channels")
+
+_PREFIX = "channels"
 
 _path = functools.partial(custom_filters.arguments, _PREFIX)
-
-loading_channels = "\
-Caricamento lista canali..."
-
-channels_zero = """\
-Non ci sono canali in lista.
-Aggiungili con /aggiungi @username"""
-
-channels_list = "\
-<b>Elenco dei canali</b>:\n\n{channels}"
-
-update_admins_text = "\
-Aggiorna amministratori"
-
-cant_update_admins_text = "\
-Amministratori aggiornati"
-
-go_back = "\
-« Indietro"
 
 
 @telegram.on_message(filters.private & filters.command(["channels", "canali"]) & custom_filters.is_admin)
 async def get_channels(_, message: Message):
     if channels.estimated_document_count() == 0:
-        return await message.reply_text(channels_zero)
+        return await message.reply_text(_("none_in_list", locale=message.from_user.language_code))
 
-    await _navigate(await message.reply_text(loading_channels))
+    await _navigate(await message.reply_text(_("loading_channels", locale=message.from_user.language_code)))
 
 
 @telegram.on_callback_query(_path('nav'))
@@ -91,9 +75,10 @@ async def get_channel_info(client: Client, callback_query: CallbackQuery):
                                      {"$set": {"administrators": list(map(lambda m: m.user.id, administrators))}})
 
     await callback_query.message.edit_text(_format_channel_info(channel, True), reply_markup=Keyboard([
-        [custom_btn(update_admins_text, _PREFIX, ['info', channel_id, back_offset, 0]) if can_update_admins else
-         dummy_btn(cant_update_admins_text)],
-        [custom_btn(go_back, _PREFIX, ['nav', back_offset])]
+        [custom_btn(_("update_admins", locale=callback_query.from_user.language_code),
+                    _PREFIX, ['info', channel_id, back_offset, 0]) if can_update_admins else
+         dummy_btn(_("admins_list_updated", locale=callback_query.from_user.language_code))],
+        [custom_btn('« '+_("go_back", locale=callback_query.from_user.language_code), _PREFIX, ['nav', back_offset])]
     ]))
 
 
@@ -108,7 +93,8 @@ async def _navigate(message: Message, offset=0):
 
     fmt_channels = format_documents_list(documents.rewind(), _format_channel_info)
 
-    await message.edit_text(channels_list.format(channels=fmt_channels), reply_markup=keyboard)
+    await message.edit_text(_("channels_list", locale=message.from_user.language_code, channels=fmt_channels),
+                            reply_markup=keyboard)
 
 
 def _format_channel_info(channel: Dict, detailed=False) -> str:
