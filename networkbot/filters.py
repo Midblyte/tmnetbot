@@ -20,6 +20,7 @@ from pyrogram import filters
 from pyrogram.types import Message, Update, CallbackQuery
 
 from .mongo import users
+from .utils.general import args_joiner
 
 
 async def is_admin_filter(_, __, update: Update):
@@ -40,7 +41,7 @@ async def arguments(*args, separator='_', method='startswith'):
         if not isinstance(update, CallbackQuery):
             return False
 
-        joined_arguments = flt.separator.join(flt.arguments)
+        joined_arguments = args_joiner(*flt.arguments, separator=flt.separator)
 
         return (method == 'startswith' and update.data.startswith(joined_arguments)) or \
             (method == 'equals' and update.data == joined_arguments) or \
