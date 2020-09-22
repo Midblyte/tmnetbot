@@ -28,35 +28,28 @@ _ = translator("time")
 MINUTES_PER_DAY = 24 * 60
 
 
-def fmt_time(dt) -> str:
-    # TODO: "locale" param is missing
+def fmt_time(dt, locale=None) -> str:
     if dt is None:
         return _("never")
 
     return (pytz.utc.localize(dt) if dt.tzinfo is None else dt) \
-        .astimezone(pytz.timezone(_("timezone"))) \
-        .strftime(_("date_full_format"))
+        .astimezone(pytz.timezone(_("timezone", locale=locale))) \
+        .strftime(_("date_full_format", locale=locale))
 
 
-def fmt_time_duration(seconds: int):
-    # TODO: "locale" param is missing
-    fmt = _("interval_full_format")
+def fmt_time_duration(seconds: int, locale=None):
+    fmt = _("interval_full_format", locale=locale)
 
-    for k, v in (
-             # Days
-             ('d', int(seconds / 60 / 60 / 24)),
+    entries = (('d', int(seconds / 60 / 60 / 24)),
+               ('total_H', int(seconds / 60 / 60)),
+               ('H', int(seconds / 60 / 60 % 24)),
+               ('total_M', int(seconds / 60)),
+               ('M', int(seconds / 60 % 60)),
+               ('total_S', seconds),
+               ('S', seconds % 60))
 
-             # Hours
-             ('total_H', int(seconds / 60 / 60)),
-             ('H', int(seconds / 60 / 60 % 24)),
-
-             # Minutes
-             ('total_M', int(seconds / 60)),
-             ('M', int(seconds / 60 % 60)),
-
-             ('total_S', seconds),
-             ('S', seconds % 60)):
-        fmt = fmt.replace(f"%{k}", v)
+    for k, v in entries:
+        fmt = fmt.replace(f"%{k}", str(v))
 
     return fmt
 
@@ -74,8 +67,9 @@ def fmt_mins(minutes: int, transform_function=localize_minutes) -> str:
     return '{:02}:{:02}'.format(minutes // 60, minutes % 60)
 
 
-def fix_minutes(minutes: int) -> int:
-    if 0 < minutes < MINUTES_PER_DAY:
-        return minutes
-    else:
-        return (MINUTES_PER_DAY + minutes) % MINUTES_PER_DAY
+def ranged_value(value: int, _max: int, _min: int = 0, starting_from: int = 0) -> int:
+    return max(_min, (value - _min) % (_max - _min) + _min + starting_from)
+
+
+def fix_minutes(num: int):
+    return ranged_value(num, MINUTES_PER_DAY)
