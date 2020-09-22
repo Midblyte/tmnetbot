@@ -41,7 +41,9 @@ def get_defaults() -> Tuple[int]:
 
 
 def text(user: User, *values: int) -> str:
-    return _("info", locale=user.language_code, interval=fmt_time_duration(values[0]))
+    locale = user.language_code
+
+    return _("info", locale=locale, interval=fmt_time_duration(values[0], locale))
 
 
 def buttons_after(user: User, *__) -> List[List[Button]]:
@@ -49,7 +51,9 @@ def buttons_after(user: User, *__) -> List[List[Button]]:
 
 
 async def on_confirm(message: Message, user: User, *values: int) -> None:
-    await message.edit_text(_("info", locale=user.language_code, interval=fmt_time_duration(values[0])))
+    locale = user.language_code
+
+    await message.edit_text(_("info", locale=locale, interval=fmt_time_duration(values[0], locale)))
 
     options_collection.find_one_and_update({}, {"$set": {"network_delta": values[0]}})
 
