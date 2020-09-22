@@ -25,19 +25,19 @@ from pyrogram.scaffold import Scaffold
 plate = Plate(Scaffold.PARENT_DIR / '..' / 'locales')
 
 
-def translator(group: str, **kwargs):
+def translator(*group, **kwargs):
     def _translate(key: str, locale: str = None, *, count: int = None, **kws) -> str:
         if locale is not None and locale not in plate.locales:
             matching_locales = filter(lambda lang_tag: lang_tag.startswith(locale), plate.locales)
 
             allowed_translations = map(lambda lang_tag: _translate(key, lang_tag, count=count, **kws), matching_locales)
 
-            default_translation = plate(f"{group}.{key}", locale=None, count=count, **kws)
+            default_translation = plate('.'.join([*group, key]), locale=None, count=count, **kws)
 
             matching_translations = list(filter(lambda text: text != default_translation, allowed_translations))
 
             return matching_translations[0] if len(matching_translations) > 0 else default_translation
 
-        return plate(f"{group}.{key}", locale, count=count, **kws)
+        return plate('.'.join([*group, key]), locale, count=count, **kws)
 
     return partial(_translate, **kwargs)
