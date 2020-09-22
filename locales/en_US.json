@@ -30,6 +30,9 @@
   "declassify.not_in_list": "The user is not in the administrators list.",
   "declassify.successfully_removed": "The user '{mention}' (ID {id}) has been removed from the administrators list.",
 
+  "emojis.on": ":CHECK_MARK_BUTTON:",
+  "emojis.off": ":CROSS_MARK:",
+
   "forward.not_a_channel": "You can't forward from this chat as it is not a channel.",
   "forward.im_not_an_admin": "You can't forward from channels of which I have not been made administrator.",
   "forward.youre_not_an_admin": "You can't forward from channels of which you're not administrator.",
@@ -66,9 +69,14 @@
   "remove_channel.successfully_removed": "The channel <b>{name}</b> has been removed (ID {id}).",
 
   "settings.info": "Settings\n\nSelect a button from the following menu",
+  "settings.buttons.notifications": "Notifications",
   "settings.buttons.time_range": "Network » time range",
   "settings.buttons.network_delta": "Network » spacing",
   "settings.buttons.channels_delta": "Channels » spacing",
+  "settings.notifications.info": "Which events do you want to receive notifications for?",
+  "settings.notifications.scheduling": "{emoji} Scheduling of messages",
+  "settings.notifications.sending": "{emoji} Forwarding of messages ",
+  "settings.notifications.cooldown": "{emoji} End of cooldown",
   "settings.time_range.info": "Messages will be sent within this time range:\n\nFrom <b>{start}</b> to <b>{end}</b>",
   "settings.network_delta.info": "Messages will be sent in the network at a distance of:\n\n<b>{interval}</b>",
   "settings.channels_delta.info": "Messages for each specific channel can be forwarded at a distance of:\n\n<b>{interval}</b>",
