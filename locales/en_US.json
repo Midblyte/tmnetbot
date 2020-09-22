@@ -65,5 +65,10 @@
   "remove_channel.not_in_list": "The channel is not in the list.",
   "remove_channel.successfully_removed": "The channel <b>{name}</b> has been removed (ID {id}).",
 
-  "start.info": "Hello {mention},\n\nDigit /help for more information about the bot"
+  "settings.info": "Settings\n\nSeleziona un pulsante dal menu seguente",
+  "settings.time_range.info": "Messages will be sent within this time range:\n\nFrom <b>{start}</b> to <b>{end}</b>",
+  "settings.network_delta.info": "Messages will be sent in the network at a distance of:\n\n<b>{interval}</b>",
+  "settings.channels_delta.info": "Messages for each specific channel can be forwarded at a distance of:\n\n<b>{interval}</b>",
+
+  "start.info": "Hello {mention},\n\nDigit /help for more information about the bot."
 }
