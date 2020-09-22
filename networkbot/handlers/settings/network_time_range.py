@@ -55,7 +55,7 @@ def buttons_before(user: User, *__) -> List[List[Button]]:
 def buttons_after(user: User, *__) -> List[List[Button]]:
     locale = user.language_code
 
-    return [[Button(_g("back", locale=locale), args_joiner(_BACK))]]
+    return [[Button(_g("back", locale=locale), args_joiner(*_BACK))]]
 
 
 async def on_confirm(message: Message, user: User, *values: int) -> None:

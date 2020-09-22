@@ -47,7 +47,7 @@ def text(user: User, *values: int) -> str:
 
 
 def buttons_after(user: User, *__) -> List[List[Button]]:
-    return [[Button(_g("back", locale=user.language_code), args_joiner(_BACK))]]
+    return [[Button(_g("back", locale=user.language_code), args_joiner(*_BACK))]]
 
 
 async def on_confirm(message: Message, user: User, *values: int) -> None:
