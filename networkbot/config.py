@@ -23,12 +23,8 @@ from collections import namedtuple
 from pyrogram.scaffold import Scaffold
 import dotenv
 
-from .internationalization import translator
-
 
 dotenv.load(Scaffold.PARENT_DIR / '..' / ".env")
-
-_ = translator("config", locale=os.getenv("CLI_LOCALE"))
 
 _required = ["TELEGRAM_API_ID", "TELEGRAM_API_HASH", "TELEGRAM_BOT_TOKEN", "TELEGRAM_CHANNEL", "MONGO_URL"]
 
