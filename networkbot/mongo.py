@@ -46,3 +46,20 @@ def init():
     }
 
     options_collection.update_one({}, {"$setOnInsert": defaults}, upsert=True)
+
+    create_indexes()
+
+
+def create_indexes():
+    channels_indexes: List[IndexModel] = [
+        IndexModel([("channel_id", pymongo.ASCENDING)], unique=True),
+        IndexModel([("administrators", pymongo.ASCENDING)]),
+        IndexModel([("scheduling.in_queue", pymongo.ASCENDING)])
+    ]
+    users_indexes: List[IndexModel] = [
+        IndexModel([("user_id", pymongo.ASCENDING)], unique=True),
+        IndexModel([("admin", pymongo.ASCENDING)])
+    ]
+
+    channels.create_indexes(channels_indexes)
+    users.create_indexes(users_indexes)
