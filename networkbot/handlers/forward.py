@@ -42,23 +42,23 @@ _path = functools.partial(custom_filters.arguments, _PREFIX)
 
 @telegram.on_message(filters.private & filters.forwarded)
 async def forward(__, message: Message):
-    tg_channel = message.forward_from_chat
+    locale, tg_channel = message.from_user.language_code, message.forward_from_chat
 
     if not tg_channel or tg_channel.type != "channel":
-        return await message.reply_text(_("not_a_channel", locale=message.from_user.language_code))
+        return await message.reply_text(_("not_a_channel", locale=locale))
 
     doc_channel: Optional[Dict] = channels.find_one({"channel_id": tg_channel.id})
 
     if doc_channel is None:
-        return await message.reply_text(_("not_part_of_the_network", locale=message.from_user.language_code))
+        return await message.reply_text(_("not_part_of_the_network", locale=locale))
 
     try:
         channel_admins: List[ChatMember] = await tg_channel.get_members(filter=Filters.ADMINISTRATORS)
     except RPCError:
-        return await message.reply_text(_("im_not_an_admin", locale=message.from_user.language_code))
+        return await message.reply_text(_("im_not_an_admin", locale=locale))
 
     if message.from_user.id not in map(lambda a: a.user.id, channel_admins):
-        return await message.reply_text(_("youre_not_an_admin", locale=message.from_user.language_code))
+        return await message.reply_text(_("youre_not_an_admin", locale=locale))
 
     last_send: datetime = doc_channel.get("last_send") or datetime.min
 
@@ -67,20 +67,20 @@ async def forward(__, message: Message):
     diff: timedelta = datetime.utcnow() - last_send
 
     if diff.total_seconds() < delta:
-        return await message.reply_text(_("not_allowed_until", locale=message.from_user.language_code,
+        return await message.reply_text(_("not_allowed_until", locale=locale,
                                           date=fmt_time(last_send + timedelta(seconds=delta))))
 
     if doc_channel.get("scheduling").get("in_queue"):
-        return await message.reply_text(_("already_in_queue", locale=message.from_user.language_code))
+        return await message.reply_text(_("already_in_queue", locale=locale))
 
-    sent_message = await message.reply_text(_g("loading", locale=message.from_user.language_code))
+    sent_message = await message.reply_text(_g("loading", locale=locale))
     start, end = options("time_range_start"), options("time_range_end")
 
     channel_id, msg_id = tg_channel.id, message.forward_from_message_id
 
     time_keyboard = select_double_time_keyboard(_PREFIX, start, end, ['set', channel_id, msg_id])
 
-    fmt_text = _("select_time_range", locale=message.from_user.language_code, **{k: fmt_mins(v) for k, v in {"start":
+    fmt_text = _("select_time_range", locale=locale, **{k: fmt_mins(v) for k, v in {"start":
                  start, "end": end, "general_start": start, "general_end": end}.items()})
 
     await sent_message.edit_text(fmt_text, reply_markup=Keyboard([
