@@ -36,7 +36,7 @@ async def no_admins_filter(_, __, update: Update):
 no_admins = filters.create(no_admins_filter)
 
 
-async def arguments(*args, separator='_', method='startswith'):
+def arguments(*args, separator='_', method='startswith'):
     async def func(flt, __, update: Update):
         if not isinstance(update, CallbackQuery):
             return False
