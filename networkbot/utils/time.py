@@ -42,12 +42,9 @@ def fmt_time_duration(seconds: int, locale=None):
     fmt = _("interval_full_format", locale=locale)
 
     entries = (('d', int(seconds / 60 / 60 / 24)),
-               ('total_H', int(seconds / 60 / 60)),
-               ('H', int(seconds / 60 / 60 % 24)),
-               ('total_M', int(seconds / 60)),
-               ('M', int(seconds / 60 % 60)),
-               ('total_S', seconds),
-               ('S', seconds % 60))
+               ('total_H', int(seconds / 60 / 60)), ('H', int(seconds / 60 / 60 % 24)),
+               ('total_M', int(seconds / 60)),      ('M', int(seconds / 60 % 60)),
+               ('total_S', seconds),                ('S', int(seconds % 60)))
 
     for k, v in entries:
         fmt = fmt.replace(f"%{k}", str(v))
