@@ -16,105 +16,49 @@
 # You should have received a copy of the GNU General Public License
 # along with tmnetbot.  If not, see <https://www.gnu.org/licenses/>.
 
-import datetime
+import asyncio
 from datetime import datetime as dt, time as t, timedelta
-from threading import Timer, Lock
+from threading import Timer, Lock, Thread
 from typing import Dict, Union, List
 
 import pymongo
-from pyrogram.errors import RPCError
 from pyrogram.types import Message, InlineKeyboardMarkup as Keyboard, InlineKeyboardButton as Button
 
 from .internationalization import translator
-from .utils.time import MINUTES_PER_DAY
 from .mongo import options, channels
 from .network import network
 from .telegram import telegram
+from .utils.time import MINUTES_PER_DAY, is_forwarding_allowed
+from .utils.users import notify
 
 
-_ = translator("schedule")
+_, _n = translator("schedule"), translator("settings", "notifications")
 
 
-class PeriodicMongoTask:
-    def __init__(self):
+class PeriodicTask:
+    def __init__(self, run, interval):
         self._lock = Lock()
         self._timer = None
+        self._interval = interval
+        self._run = run
         self._running = False
 
-    @staticmethod
-    def _can_send(start: datetime.datetime, end: datetime.datetime, now: datetime.datetime):
-        inclusive = True
-
-        if start > end:
-            start, end = end, start
-            inclusive = False
-
-        return (start < now < end and inclusive) or ((now < start or now > end) and not inclusive)
-
-    @staticmethod
-    def _check():
-        collection_filter = {"scheduling.in_queue": True}
-        collection_sort = [
-            ("scheduling.time_to", pymongo.ASCENDING),
-            ("last_send", pymongo.ASCENDING)
-        ]
-        documents_number: int = channels.count_documents(collection_filter)
-
-        if documents_number == 0:
-            return
-
-        start_mins, end_mins = options("time_range_start") or 0, options("time_range_end") or MINUTES_PER_DAY
-
-        datetime_now = dt.utcnow()
-        today = datetime_now.date()
-        start, end = map(lambda minutes: dt.combine(today, t.min) + timedelta(minutes=minutes), (start_mins, end_mins))
-
-        if not PeriodicMongoTask._can_send(start, end, datetime_now):
-            return
-
-        queue_documents: List[Dict] = list(channels.find(collection_filter, sort=collection_sort))
-
-        for document in queue_documents:
-            scheduling = document.get('scheduling')
-
-            channel_start_mins, channel_end_mins = scheduling.get("time_from"), scheduling.get("time_to")
-
-            channel_start, channel_end = map(lambda minutes: dt.combine(today, t.min) + timedelta(minutes=minutes),
-                                             (channel_start_mins, channel_end_mins))
-
-            if PeriodicMongoTask._can_send(channel_start or start, channel_end or end, datetime_now):
-                to_be_sent = document
-                break
+    def _run_fn(self):
+        if asyncio.iscoroutinefunction(self._run):
+            asyncio.run(self._run())
         else:
-            return
-
-        channel_id, message_id = to_be_sent.get("channel_id"), to_be_sent.get("scheduling").get("message_id")
-
-        sent_message: Union[Message, List[Message]] = telegram.forward_messages(network, channel_id, message_id)
-
-        channels.update_one(to_be_sent, {"$set": {"last_send": datetime_now, "scheduling": {"in_queue": False}}})
-
-        channel_username, msg_id = sent_message.chat.username, sent_message.message_id
-        reply_markup = None
-        if channel_username:
-            reply_markup = lambda locale: Keyboard([[
-                Button(_("go_to_the_message", locale), url=f"https://t.me/{channel_username}/{msg_id}")]])
-
-        for administrator_id in to_be_sent.get("administrators"):
-            try:
-                telegram.send_message(administrator_id, _("successfully_forwarded"), reply_markup=reply_markup and
-                                      reply_markup("it_IT"))
-            except RPCError:
-                pass
+            self._run()
 
     def start(self, force=False):
         self._lock.acquire()
 
+        Thread(target=self._run_fn).start()
+
         if not self._running or force:
             self._running = True
-            self._check()
-            self._timer = Timer(options("network_delta"), lambda: self.start(True))
+            self._timer = Timer(self._interval, lambda: self.start(True))
             self._timer.start()
+
             self._lock.release()
 
     def stop(self):
@@ -128,4 +72,54 @@ class PeriodicMongoTask:
         self.start()
 
 
-periodic_task = PeriodicMongoTask()
+def get_channels_in_queue(limit: int = 1) -> List[Dict]:
+    return list(channels.aggregate([
+        {"$match": {"scheduling.in_queue": True}},
+        {"$sort": {"scheduling.inserted_on": pymongo.ASCENDING}},
+        {"$limit": limit},
+        {"$lookup": {
+            "from": "users",
+            "localField": "administrators",
+            "foreignField": "user_id",
+            "as": "administrators"
+        }},
+        {"$match": {"administrators.notifications.sending": True}},
+        {"$project": {
+            "users_ids": "$administrators.user_id",
+            "channel_id": True,
+            "message_id": "$scheduling.message_id"
+        }}
+    ]))
+
+
+def check_and_send():
+    queue: List[Dict] = get_channels_in_queue(1)
+
+    start_mins, end_mins = options("time_range_start") or 0, options("time_range_end") or MINUTES_PER_DAY
+
+    datetime_now = dt.utcnow()
+    today = datetime_now.date()
+    start, end = map(lambda minutes: dt.combine(today, t.min) + timedelta(minutes=minutes), (start_mins, end_mins))
+
+    if len(queue) == 0 or not is_forwarding_allowed(start, end, datetime_now):
+        return
+
+    for channel in queue:
+        channel_id, message_id = channel.get("channel_id"), channel.get("message_id")
+
+        sent_message: Union[Message, List[Message]] = telegram.forward_messages(network, channel_id, message_id)
+
+        channels.update_one({"_id": channel.get("_id")},
+                            {"$set": {"last_send": datetime_now, "scheduling": {"in_queue": False}}})
+
+        sent_msg_id = (sent_message[0] if isinstance(sent_message, list) else sent_message).message_id
+
+        reply_markup = lambda locale: Keyboard([[Button(_("go_to_the_message", locale=locale),
+                                                        url=f"https://t.me/c/{-channel_id + 10**12}/{sent_msg_id}")]])
+
+        notify("successfully_forwarded", users_ids=channel.get("users_ids"), reply_markup=reply_markup)
+
+    # todo notify: cooldown_ended
+
+
+periodic_task = PeriodicTask(check_and_send, options("network_delta"))
