@@ -16,68 +16,65 @@
 # You should have received a copy of the GNU General Public License
 # along with tmnetbot.  If not, see <https://www.gnu.org/licenses/>.
 
-import functools
-from datetime import timedelta
-from typing import Dict, Callable
-
 from pyrogram import filters
-from pyrogram.types import Message, InlineKeyboardMarkup as Keyboard, CallbackQuery
+from pyrogram.types import Message, CallbackQuery, InlineKeyboardMarkup as Keyboard, InlineKeyboardButton as Button, \
+    User
 
 from .. import filters as custom_filters
 from ..internationalization import translator
-from ..utils.channels import can_send_icon
-from ..utils.documents import get_documents_range, format_documents_list
-from ..utils.keyboards import custom_btn
-from ..utils.time import fmt_time
-from ..mongo import channels, options
+from ..mongo import channels
 from ..telegram import telegram
+from ..utils.channels import format_channel_info
+from ..utils.documents import get_documents_range, format_documents_list
+from ..utils.general import extract_args, args_joiner
+from ..utils.users import notify
 
 
-_ = translator("info")
+_PREFIX = "info",
 
-_PREFIX = channels.name
-
-_path = functools.partial(custom_filters.arguments, _PREFIX)
-
-channels_admin_filter: Callable[[int], Dict] = lambda uid: {"administrators": {"$in": [uid]}}
+_, _n, _g = translator(*_PREFIX), translator("settings", "notifications"), translator("general")
 
 
 @telegram.on_message(filters.private & filters.command("info"))
-async def info(__, message: Message):
-    collection_filter: Dict = channels_admin_filter(message.from_user.id)
-    count = channels.count_documents(collection_filter)
+def info(__, message: Message):
+    locale = message.from_user.language_code
+
+    count = channels.count_documents({"administrators": {"$in": [message.from_user.id]}})
 
     if count == 0:
-        return await message.reply_text(_("not_an_admin", locale=message.from_user.language_code))
+        return message.reply_text(_("not_an_admin", locale=locale))
 
-    await _navigate(await message.reply_text(_("loading_channels", locale=message.from_user.language_code)),
-                    message.from_user.id)
-
-
-@telegram.on_callback_query(_path("admins", "nav"))
-async def get_channels_info_page(_, callback_query: CallbackQuery):
-    user_id, offset = map(int, callback_query.data.rsplit('_', 2)[1:])
-
-    await callback_query.answer()
-
-    await _navigate(callback_query.message, user_id, offset)
+    _menu(message.reply_text(_("loading_channels", locale=locale)), message.from_user)
 
 
-@telegram.on_callback_query(_path("rm"))
-async def get_channels_info_page(_, callback_query: CallbackQuery):
-    user_id, channel_id, offset = map(int, callback_query.data.rsplit('_', 3)[1:])
+@telegram.on_callback_query(custom_filters.arguments(*_PREFIX, "nav"))
+def get_channels_info_page(_, callback_query: CallbackQuery):
+    callback_query.answer()
 
-    channels.find_one_and_update({"channel_id": channel_id, **channels_admin_filter(user_id)},
+    offset, = extract_args(callback_query.data, 1, int)
+
+    _menu(callback_query.message, callback_query.from_user, offset)
+
+
+@telegram.on_callback_query(custom_filters.arguments(*_PREFIX, "rm"))
+def get_channels_info_rm(_, callback_query: CallbackQuery):
+    callback_query.answer()
+
+    channel_id, offset = extract_args(callback_query.data, 2, int)
+
+    channels.find_one_and_update({"channel_id": channel_id, "administrators": {"$in": [callback_query.from_user.id]}},
                                  {"$set": {"scheduling": {"in_queue": False}}})
 
-    await callback_query.answer()
+    notify("scheduling_cancelled", channel_id=channel_id, exception=callback_query.from_user.id)
 
-    await _navigate(callback_query.message, user_id, offset)
+    _menu(callback_query.message, callback_query.from_user, offset)
 
 
-async def _navigate(message: Message, user_id: int, offset=0):
-    documents, keyboard = get_documents_range(channels, offset, filters=channels_admin_filter(user_id),
-                                              nav=lambda c, o: f"{c}_admins_nav_{user_id}_{o}")
+def _menu(message: Message, user: User, offset=0):
+    locale = user.language_code
+
+    documents, keyboard = get_documents_range(channels, offset, filters={"administrators": {"$in": [user.id]}},
+                                              nav=lambda c, o: f"{c}_nav_{o}")
 
     if not keyboard:
         keyboard = Keyboard([])
@@ -86,43 +83,13 @@ async def _navigate(message: Message, user_id: int, offset=0):
         if d.get('scheduling').get('in_queue') is True:
             name, channel_id = [d.get(k) for k in ("name", "channel_id")]
 
-            keyboard.inline_keyboard.append([custom_btn(f"❌ {name}", _PREFIX, ["rm", user_id, channel_id, offset])])
+            keyboard.inline_keyboard.append([Button(f"❌ {name}", args_joiner(*_PREFIX, "rm", channel_id, offset))])
 
     if len(keyboard.inline_keyboard) == 0:
         keyboard = None
 
-    fmt_channels = format_documents_list(documents.rewind(), _format_channel_info)
+    fmt_channels = format_documents_list(documents.rewind(),
+                                         lambda c: format_channel_info(c["channel_id"], locale=locale))
 
-    await message.edit_text(_("channels_list", locale=message.from_user.language_code, channels=fmt_channels),
-                            reply_markup=keyboard)
-
-
-def _format_channel_info(channel: Dict, detailed=False) -> str:
-    name = channel.get('name')
-    channel_id = channel.get('channel_id')
-    last_send = channel.get('last_send')
-    channel_delta = channel.get('delta')
-    delta = channel_delta or options("channels_delta")
-    in_queue = channel.get('scheduling').get('in_queue')
-    icon = can_send_icon(last_send, delta, in_queue)
-    generation_time = fmt_time(channel.get('_id').generation_time)
-    last_send_time = fmt_time(last_send)
-
-    text = f"""\
-{icon} {name}
-Ultimo invio » {last_send_time}"""
-
-    if detailed:
-        text = f"""\
-{icon} {name} [ID {channel_id}]
-Ultimo invio » {last_send_time}
-Aggiunto il » {generation_time}
-"""
-
-        if icon == '🔇':
-            text += f"\nProssimo invio dal: {fmt_time(last_send + timedelta(seconds=delta))}"
-
-        if channel_delta is not None:
-            text += f"\nDistanziamento personalizzato: {channel_delta} secondi"
-
-    return text
+    message.edit_text(_("channels_list", locale=telegram.get_users(user.id).language_code, channels=fmt_channels),
+                      reply_markup=keyboard)
