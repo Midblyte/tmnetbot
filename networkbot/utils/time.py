@@ -17,6 +17,7 @@
 # along with tmnetbot.  If not, see <https://www.gnu.org/licenses/>.
 
 from datetime import datetime
+from typing import Optional
 
 import pytz
 
@@ -28,7 +29,7 @@ _ = translator("time")
 MINUTES_PER_DAY = 24 * 60
 
 
-def fmt_time(dt, locale=None) -> str:
+def fmt_time(dt, locale: Optional[str] = None) -> str:
     if dt is None:
         return _("never")
 
