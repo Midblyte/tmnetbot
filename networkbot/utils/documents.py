@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with tmnetbot.  If not, see <https://www.gnu.org/licenses/>.
 
-from typing import Callable, Tuple, Optional, List, Dict
+from typing import Callable, Tuple, Optional, List, Dict, Iterable, Union
 
 from pymongo.collection import Collection
 from pymongo.cursor import Cursor
@@ -48,5 +48,6 @@ def get_documents_range(collection: Collection, offset=0, maximum_per_page=10, f
     return documents, InlineKeyboardMarkup([nav_buttons])
 
 
-def format_documents_list(cursor: Cursor, fmt_function: Callable[[Dict], str], separator='\n\n') -> str:
+def format_documents_list(cursor: Union[Cursor, Iterable],
+                          fmt_function: Callable[[Dict], str], separator='\n\n') -> str:
     return separator.join([fmt_function(c) for c in cursor])
