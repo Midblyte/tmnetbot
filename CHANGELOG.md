@@ -6,8 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 ### Added
-- Initial support for internationalization
+- Internationalization
 - CLI_LOCALE environment variable
+- Users can receive notifications
+- Users can toggle notifications by using the /settings command
+### Removed
+- Channels administrators can no longer set a custom time range 
+### Fixed
+- Improved speed and reliability
 
 ## [0.1.0] - 2020-09-19
 ### Added
