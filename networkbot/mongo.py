@@ -18,7 +18,8 @@
 
 from typing import Any, Callable
 
-from pymongo import MongoClient
+import pymongo
+from pymongo import MongoClient, IndexModel
 from pymongo.collection import Collection
 from pymongo.database import Database
 
@@ -47,13 +48,15 @@ def init():
 
     options_collection.update_one({}, {"$setOnInsert": defaults}, upsert=True)
 
-    create_indexes()
+    _create_indexes()
 
 
-def create_indexes():
+
+def _create_indexes():
     channels_indexes: List[IndexModel] = [
         IndexModel([("channel_id", pymongo.ASCENDING)], unique=True),
         IndexModel([("administrators", pymongo.ASCENDING)]),
+        IndexModel([("last_send", pymongo.DESCENDING)]),
         IndexModel([("scheduling.in_queue", pymongo.ASCENDING)])
     ]
     users_indexes: List[IndexModel] = [
