@@ -1,15 +1,9 @@
-async-lru==1.0.2
-certifi==2020.6.20
-chardet==3.0.4
 dnspython==2.0.0
-idna==2.10
-pyaes==1.6.1
 pymongo~=3.11.0
 Pyrogram~=1.0.7
-PySocks==1.7.1
 pytz~=2020.1
-plate~=1.0.0
 requests==2.24.0
 TgCrypto==1.2.1
 urllib3==1.25.10
 python-env==1.0.0
+git+https://github.com/Midblyte/plate.git@d2b0120e06be57703104c3a13fff0636ee5f95aa#egg=plate
