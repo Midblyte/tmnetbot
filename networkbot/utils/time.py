@@ -60,6 +60,7 @@ def is_forwarding_allowed(start: datetime, end: datetime, now: datetime):
 
 
 def localize_minutes(minutes: int, timezone=pytz.timezone("Europe/Rome")) -> int:
+    # todo: add internationalization
     value = minutes + datetime.utcnow().astimezone(timezone).tzinfo.utcoffset(datetime.utcnow()).seconds // 60
 
     return fix_minutes(value)
