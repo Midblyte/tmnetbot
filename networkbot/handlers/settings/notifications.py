@@ -42,6 +42,8 @@ async def initial(__, callback_query: CallbackQuery):
 
 @telegram.on_callback_query(custom_filters.arguments(*_PREFIX, "set"))
 async def _set(__, callback_query: CallbackQuery):
+    await callback_query.answer()
+
     key, value = extract_args(callback_query.data, 2)
 
     users.find_one_and_update({"user_id": callback_query.from_user.id},
