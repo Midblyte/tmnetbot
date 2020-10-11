@@ -58,10 +58,10 @@ async def _menu(message: Message, user: User):
     keyboard = Keyboard([])
 
     for key, value in notifications.items():
-        keyboard.inline_keyboard.extend([[Button(
+        keyboard.inline_keyboard.append([Button(
             _(key, locale=locale, emoji=_e(("on" if value else "off"), locale=locale)),
-            args_joiner(*_PREFIX, "set", key, not value))]])
+            args_joiner(*_PREFIX, "set", key, not value))])
 
-    keyboard.inline_keyboard.extend([[Button(_g("back"), args_joiner(*_BACK))]])
+    keyboard.inline_keyboard.append([Button(_g("back", locale=locale), args_joiner(*_BACK))])
 
     await message.edit_text(_("info", locale=locale), reply_markup=keyboard)
