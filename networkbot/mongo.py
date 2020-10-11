@@ -16,7 +16,8 @@
 # You should have received a copy of the GNU General Public License
 # along with tmnetbot.  If not, see <https://www.gnu.org/licenses/>.
 
-from typing import Any, Callable
+from threading import Thread
+from typing import Any, Callable, List
 
 import pymongo
 from pymongo import MongoClient, IndexModel
@@ -50,6 +51,7 @@ def init():
 
     _create_indexes()
 
+    Thread(target=_monitor_options).start()
 
 
 def _create_indexes():
@@ -66,3 +68,24 @@ def _create_indexes():
 
     channels.create_indexes(channels_indexes)
     users.create_indexes(users_indexes)
+
+
+def _monitor_options():
+    from .scheduler import periodic_task
+
+    pipeline = [{
+        "$match": {
+            "$and": [
+                {"updateDescription.updatedFields.network_delta": {"$exists": True}},
+                {"$or": [
+                    {"operationType": "update"},
+                    {"operationType": "replace"},
+                ]}
+            ]
+        }
+    }]
+
+    with options_collection.watch(pipeline, full_document="updateLookup") as stream:
+        for insert_change in stream:
+            periodic_task._interval = insert_change.get("fullDocument").get("network_delta")
+            periodic_task.restart()
