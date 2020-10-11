@@ -30,8 +30,6 @@ _PREFIX = "settings", "notifications"
 
 _BACK = "settings", "initial"
 
-NOTIFICATIONS = "scheduling", "sending", "cooldown"
-
 _, _g, _e = translator(*_PREFIX), translator("general"), translator("emojis")
 
 
