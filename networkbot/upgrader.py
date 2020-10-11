@@ -16,9 +16,10 @@
 # You should have received a copy of the GNU General Public License
 # along with tmnetbot.  If not, see <https://www.gnu.org/licenses/>.
 
-from collections import OrderedDict
 
-from ..mongo import networkdb, options_collection, options
+from itertools import islice
+
+from .mongo import networkdb
 
 
 def v0_1_0():
@@ -26,25 +27,27 @@ def v0_1_0():
 
 
 def v0_2_0():
-    networkdb["admins"].update_many({}, {"$set": {"admin": True, "notifications": True}})
+    networkdb["admins"].update_many({}, {"$set": {
+        "admin": True,
+        "notifications": {k: True for k in ("scheduling", "sending", "cooldown")}
+    }})
     networkdb["admins"].rename("users")
 
 
-jobs = OrderedDict([
-    ("0.1.0", v0_1_0),
-    ("0.2.0", v0_2_0)
-])
+jobs = {
+    "0.1.0": v0_1_0,
+    "0.2.0": v0_2_0
+}
 
 
 def upgrade():
-    from .. import __version__
+    from . import __version__
 
-    upgrade_from = options("__version__") or "0.1.0"
-    upgrade_to = __version__
+    upgrade_from = networkdb.options.find_one({}, projection=["__version__"]).get("__version__") or "0.1.0"
+    upgrade_from_index = list(jobs.keys()).index(upgrade_from) + 1
 
-    versions, calls = map(list, (jobs.keys(), jobs.values(),))
+    for current_version in islice(jobs, upgrade_from_index, len(jobs)):
+        print(f"Upgrading to version {current_version} ...")
+        jobs[current_version]()
 
-    for call in calls[versions.index(upgrade_from)+1:versions.index(upgrade_to)+1]:
-        call()
-
-    options_collection.find_one_and_update({}, {"$set": {"__version__": __version__}})
+    networkdb.options.find_one_and_update({}, {"$set": {"__version__": __version__}})
