@@ -55,6 +55,10 @@ def fmt_time_duration(seconds: int, locale=None):
     return fmt
 
 
+def is_forwarding_allowed(start: datetime, end: datetime, now: datetime):
+    return (start < now < end) == (start < end)
+
+
 def localize_minutes(minutes: int, timezone=pytz.timezone("Europe/Rome")) -> int:
     value = minutes + datetime.utcnow().astimezone(timezone).tzinfo.utcoffset(datetime.utcnow()).seconds // 60
 
