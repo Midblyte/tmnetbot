@@ -16,39 +16,45 @@
 # You should have received a copy of the GNU General Public License
 # along with tmnetbot.  If not, see <https://www.gnu.org/licenses/>.
 
-from typing import Optional
-
 from pyrogram import filters
-from pyrogram.types import Message, InlineKeyboardMarkup as Keyboard, InlineKeyboardButton as Button, CallbackQuery
+from pyrogram.types import Message, InlineKeyboardMarkup as Keyboard, InlineKeyboardButton as Button, CallbackQuery, \
+    User
 
 from ...internationalization import translator
 from ...mongo import users
 from ...telegram import telegram
 from ... import filters as custom_filters
 from . import (
-    network_time_range,
+    time_range,
     channels_delta,
-    network_delta
+    network_delta,
+    notifications
 )
 
 
-_, _b = translator("settings"), translator("settings", "buttons")
+_, _g, _b = translator("settings"), translator("general"), translator("settings", "buttons")
 
 
 @telegram.on_message(filters.private & filters.command(["settings", "impostazioni"]))
 async def settings(__, message: Message):
-    await _menu(message, message.from_user.language_code)
+    sent_message = await message.reply_text(_g("loading", locale=message.from_user.language_code))
+
+    await _menu(sent_message, message.from_user)
 
 
-@telegram.on_callback_data(custom_filters.arguments("settings", "initial"))
+@telegram.on_callback_query(custom_filters.arguments("settings", "initial"))
 async def settings_cq(__, callback_query: CallbackQuery):
     await callback_query.answer()
 
-    await _menu(callback_query.message, callback_query.from_user.language_code)
+    await _menu(callback_query.message, callback_query.from_user)
 
 
-async def _menu(message: Message, locale: Optional[str]):
-    keyboard = Keyboard([[Button('Notifiche', 'settings_notifications_initial')]])
+async def _menu(message: Message, user: User):
+    locale = user.language_code
+
+    keyboard = Keyboard([
+        [Button(_b('notifications', locale=locale), 'settings_notifications_initial')]
+    ])
 
     if users.find_one({"admin": True, "user_id": message.chat.id}):
         keyboard.inline_keyboard.extend([
@@ -57,4 +63,4 @@ async def _menu(message: Message, locale: Optional[str]):
             [Button(_b("channels_delta", locale=locale), 'settings_channels_delta_initial')]
         ])
 
-    await message.reply_text(_("info", locale=locale), reply_markup=keyboard)
+    await message.edit_text(_("info", locale=locale), reply_markup=keyboard)
