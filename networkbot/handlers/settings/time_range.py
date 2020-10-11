@@ -41,27 +41,25 @@ def get_defaults() -> Tuple[int, int]:
 
 
 def text(user: User, *values: int) -> str:
-    locale = user.language_code
+    start, end = values
 
-    return _("info", locale=locale, start=fmt_mins(values[0]), end=fmt_mins(values[1]))
+    return _("info", locale=user.language_code, start=fmt_mins(start), end=fmt_mins(end))
 
 
 def buttons_before(user: User, *__) -> List[List[Button]]:
-    locale = user.language_code
-
-    return [[dummy_btn(_t(label, locale=locale)) for label in ("from", "to")]]
+    return [[dummy_btn(_t(label, locale=user.language_code)) for label in ("from", "to")]]
 
 
 def buttons_after(user: User, *__) -> List[List[Button]]:
-    locale = user.language_code
-
-    return [[Button(_g("back", locale=locale), args_joiner(*_BACK))]]
+    return [[Button(_g("back", locale=user.language_code), args_joiner(*_BACK))]]
 
 
-async def on_confirm(message: Message, user: User, *values: int) -> None:
-    await message.edit_text(f"{user.language_code} f{values[0]} s{values[1]}")
+def on_confirm(message: Message, user: User, *values: int) -> None:
+    start, end = values
 
-    options_collection.find_one_and_update({}, {"$set": {"time_range_start": values[0], "time_range_end": values[1]}})
+    message.edit_text(_("info", locale=user.language_code, start=fmt_mins(start), end=fmt_mins(end)))
+
+    options_collection.find_one_and_update({}, {"$set": {"time_range_start": start, "time_range_end": end}})
 
 
 handle_double_keyboard(*_PREFIX, map_fn=fix_minutes, defaults=get_defaults, columns_number=2, buttons=_BUTTONS,
