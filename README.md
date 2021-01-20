@@ -42,11 +42,12 @@ Run the provided script. You'll see a .session file to be created in the folder:
 
 ##### MacOS, Linux:
 
+    # Don't forget to grant the "execute" permission (chmod).
     ./bin/start_bot.py
 
 ##### Windows:
 
-    python .\bin\start_bot.py
+    python3 .\bin\start_bot.py
 
 
 # Environment variables
@@ -91,16 +92,25 @@ databases locally)
 - The _connection string_ will show up. It starts with _mongo+srv://_
 <hr>
 
+    TELEGRAM_POST_AUTHOR
+    TELEGRAM_POST_CHANNEL
+
+**Optional** (defaults to `None`). Keyboard buttons under the message.
+If both or even just one of them is specified, the bot'll forward the messages as copies,
+without the forward signature.
+Special variables: {author} and {channel}.
+<hr/>
+
     NETWORK_SHORT_NAME
     
-**Optional** (defaults to `tmnetbot`). Let it be anything you want ().
-It is used both as database name and prefix of the session file
+**Optional** (defaults to `tmnetbot`). Let it be anything you want.
+It is used both as database name and prefix of the session file.
 <hr>
 
     CLI_LOCALE
     
 **Optional** (defaults to `en_US`).
-It's the language the messages will be in, when printing messages in console
+It's the language the messages will be in, when printing messages in console.
 
 ###### The correct format of the .env file is `KEY = VALUE`. For each variable give it its own line.
 
@@ -125,9 +135,7 @@ Useful for Telegram networks which do have a "best posts of the network" channel
 
 The entire bot has been coded in the the english language as my personal habit.
 However, since it was initially a private commitment, it has been designed to be used by Italians only.
-Every text is written in the Italian language, every date is therefore converted in CET/CEST (it depends on DST).
-
-Internationalization is not yet a priority, but any help is welcome.
+Some texts may still be written in the Italian language.
 
 
 # Special thanks
