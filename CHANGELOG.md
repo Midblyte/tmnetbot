@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CLI_LOCALE environment variable
 - Users can receive notifications
 - Users can toggle notifications by using the /settings command
+- Bot can forward messages without forward signature.
 ### Removed
 - Channels administrators can no longer set a custom time range 
 ### Fixed
