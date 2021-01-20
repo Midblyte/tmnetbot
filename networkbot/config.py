@@ -27,7 +27,8 @@ dotenv.load(Scaffold.PARENT_DIR / '..' / ".env")
 
 _required = ["TELEGRAM_API_ID", "TELEGRAM_API_HASH", "TELEGRAM_BOT_TOKEN", "TELEGRAM_CHANNEL", "MONGO_URL"]
 
-_optional = {"NETWORK_SHORT_NAME": "tmnetbot", "CLI_LOCALE": "en_US"}
+_optional = {"NETWORK_SHORT_NAME": "tmnetbot", "CLI_LOCALE": "en_US", "TELEGRAM_POST_AUTHOR": None,
+             "TELEGRAM_POST_CHANNEL": None}
 
 Config = namedtuple("Config", _required + list(_optional), defaults=_optional.values())
 

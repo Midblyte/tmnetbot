@@ -22,8 +22,10 @@ from threading import Timer, Lock, Thread
 from typing import Dict, Union, List
 
 import pymongo
+from pyrogram.errors import RPCError
 from pyrogram.types import Message, InlineKeyboardMarkup as Keyboard, InlineKeyboardButton as Button
 
+from config import config
 from .internationalization import translator
 from .mongo import options, channels
 from .network import network
@@ -104,10 +106,28 @@ def check_and_send():
     if len(queue) == 0 or not is_forwarding_allowed(start, end, datetime_now):
         return
 
+    author_format = config.TELEGRAM_POST_AUTHOR
+    channel_format = config.TELEGRAM_POST_AUTHOR
     for channel in queue:
         channel_id, message_id = channel.get("channel_id"), channel.get("message_id")
 
-        sent_message: Union[Message, List[Message]] = telegram.forward_messages(network, channel_id, message_id)
+        try:
+            reply_markup = Keyboard([])
+            msg: Union[Message, List[Message]] = telegram.get_messages(channel_id=channel_id, message_ids=message_id )
+            if author_format is not None and msg.author_signature and msg.from_user.username:
+                reply_markup.inline_keyboard.append([Button(author_format.format(author=msg.author_signature),
+                                                           url=f"https://t.me/{msg.from_user.username}")])
+            if channel_format is not None and msg.chat.type == "channel" and msg.chat.username:
+                reply_markup.inline_keyboard.append([Button(channel_format.format(channel=msg.chat.title),
+                                                           url=f"https://t.me/{msg.chat.username}")])
+            else:
+                reply_markup = None
+
+            sent_message: Union[Message, List[Message]] = telegram.forward_messages(
+                chat_id=network, from_chat_id=channel_id, message_ids=message_id, as_copy=bool(reply_markup),
+                reply_markup=reply_markup)
+        except RPCError as err:  # todo: send alert
+            continue
 
         channels.update_one({"_id": channel.get("_id")},
                             {"$set": {"last_send": datetime_now, "scheduling": {"in_queue": False}}})
