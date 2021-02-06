@@ -37,7 +37,7 @@ _, _g, _b = translator("settings"), translator("general"), translator("settings"
 
 @telegram.on_message(filters.private & filters.command(["settings", "impostazioni"]))
 async def settings(__, message: Message):
-    sent_message = await message.reply_text(_g("loading", locale=message.from_user.language_code))
+    sent_message = await message.reply_text(_g("loading", locale=getattr(message.from_user, "language_code", None)))
 
     await _menu(sent_message, message.from_user)
 

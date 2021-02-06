@@ -41,7 +41,7 @@ _, _g = translator(*_PREFIX), translator("general")
 
 @telegram.on_message(filters.private & filters.forwarded)
 def forward(__, message: Message):
-    locale = message.from_user.language_code
+    locale = getattr(message.from_user, "language_code", None)
 
     sent_message = message.reply_text(_g("loading", locale=locale))
 
@@ -73,7 +73,7 @@ def refresh(__, callback_query: CallbackQuery):
 def confirm(__, callback_query: CallbackQuery):
     callback_query.answer()
 
-    locale = callback_query.from_user.language_code
+    locale = getattr(callback_query.from_user, "language_code", None)
 
     forward_from_chat_id, forward_from_message_id = extract_args(callback_query.data, 2, int)
 

@@ -33,20 +33,20 @@ _ = translator("remove_channel")
                      custom_filters.is_admin)
 async def remove_channel(client: Client, message: Message):
     if ' ' not in message.text:
-        return await message.reply_text(_("usage", locale=message.from_user.language_code))
+        return await message.reply_text(_("usage", locale=getattr(message.from_user, "language_code", None)))
 
     channel_as_text = message.text.split(' ')[1]
 
     try:
         channel: Chat = await client.get_chat(channel_as_text)
     except RPCError:
-        return await message.reply_text(_("unlisted_channel", locale=message.from_user.language_code))
+        return await message.reply_text(_("unlisted_channel", locale=getattr(message.from_user, "language_code", None)))
 
     if channel.type != "channel":
-        return await message.reply_text(_("not_a_channel", locale=message.from_user.language_code))
+        return await message.reply_text(_("not_a_channel", locale=getattr(message.from_user, "language_code", None)))
 
     if channels.find_one_and_delete({"channel_id": channel.id}) is None:
-        await message.reply_text(_("unlisted_channel", locale=message.from_user.language_code))
+        await message.reply_text(_("unlisted_channel", locale=getattr(message.from_user, "language_code", None)))
     else:
-        await message.reply_text(_("successfully_removed", locale=message.from_user.language_code, name=channel.title,
+        await message.reply_text(_("successfully_removed", locale=getattr(message.from_user, "language_code", None), name=channel.title,
                                    id=channel.id))

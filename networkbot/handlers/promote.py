@@ -34,18 +34,18 @@ _ = translator("promote")
 @telegram.on_message(filters.private & filters.command(["promuovi", "promote"]) & custom_filters.is_admin)
 async def promote(client: Client, message: Message):
     if ' ' not in message.text:
-        return await message.reply_text(_("usage", locale=message.from_user.language_code))
+        return await message.reply_text(_("usage", locale=getattr(message.from_user, "language_code", None)))
 
     user_as_text = message.text.split(' ')[1]
 
     try:
         admin = await client.get_users(user_as_text)
     except RPCError:
-        return await message.reply_text(_("not_an_user", locale=message.from_user.language_code))
+        return await message.reply_text(_("not_an_user", locale=getattr(message.from_user, "language_code", None)))
 
     if users.find_one({"user_id": admin.id, "admin": True}):
-        return await message.reply_text(_("already_in_list", locale=message.from_user.language_code))
+        return await message.reply_text(_("already_in_list", locale=getattr(message.from_user, "language_code", None)))
 
     users.insert_one({"user_id": admin.id, "name": admin.first_name, "admin": True})
-    await message.reply_text(_("successfully_promoted", locale=message.from_user.language_code,
+    await message.reply_text(_("successfully_promoted", locale=getattr(message.from_user, "language_code", None),
                                mention=admin.mention, first_name=escape(admin.first_name), id=admin.id))

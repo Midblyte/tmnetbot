@@ -34,17 +34,17 @@ _ = translator("declassify")
 @telegram.on_message(filters.private & filters.command(["declassa", "declassify"]) & custom_filters.is_admin)
 async def declassify(client: Client, message: Message):
     if ' ' not in message.text:
-        return await message.reply_text(_("usage", locale=message.from_user.language_code))
+        return await message.reply_text(_("usage", locale=getattr(message.from_user, "language_code", None)))
 
     user_as_text = message.text.split(' ')[1]
 
     try:
         admin: User = await client.get_users(user_as_text)
     except RPCError:
-        return await message.reply_text(_("not_an_user", locale=message.from_user.language_code))
+        return await message.reply_text(_("not_an_user", locale=getattr(message.from_user, "language_code", None)))
 
     if users.find_one_and_delete({"admin": True, "user_id": admin.id}) is None:
-        await message.reply_text(_("unlisted_admin", locale=message.from_user.language_code))
+        await message.reply_text(_("unlisted_admin", locale=getattr(message.from_user, "language_code", None)))
     else:
-        await message.reply_text(_("successfully_removed", locale=message.from_user.language_code,
+        await message.reply_text(_("successfully_removed", locale=getattr(message.from_user, "language_code", None),
                                    mention=admin.mention, first_name=escape(admin.first_name), id=admin.id))

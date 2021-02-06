@@ -39,7 +39,7 @@ _, _g, _s = translator(*_PREFIX), translator("general"), translator("schedule")
 
 @telegram.on_message(filters.private & filters.command(["channels", "canali"]) & custom_filters.is_admin)
 def get_channels(__, message: Message):
-    locale = message.from_user.language_code
+    locale = getattr(message.from_user, "language_code", None)
 
     if channels.estimated_document_count() == 0:
         return message.reply_text(_("none_in_list", locale=locale))
@@ -60,7 +60,7 @@ def get_channels_page(__, callback_query: CallbackQuery):
 def get_channel_info(client: Client, callback_query: CallbackQuery):
     callback_query.answer()
 
-    locale = callback_query.from_user.language_code
+    locale = getattr(callback_query.from_user, "language_code", None)
 
     channel_id, back_offset, can_update_admins = extract_args(callback_query.data, 3, int)
 

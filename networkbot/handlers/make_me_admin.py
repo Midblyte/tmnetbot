@@ -32,4 +32,4 @@ _ = translator("makemeadmin")
 async def make_me_admin(__, message: Message):
     users.update_one({"user_id": message.from_user.id}, {"$set": {"admin": True}})
 
-    await message.reply_text(_("info", locale=message.from_user.language_code))
+    await message.reply_text(_("info", locale=getattr(message.from_user, "language_code", None)))

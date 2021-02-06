@@ -37,7 +37,7 @@ _, _n, _g = translator(*_PREFIX), translator("settings", "notifications"), trans
 
 @telegram.on_message(filters.private & filters.command("info"))
 def info(__, message: Message):
-    locale = message.from_user.language_code
+    locale = getattr(message.from_user, "language_code", None)
 
     count = channels.count_documents({"administrators": {"$in": [message.from_user.id]}})
 

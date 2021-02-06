@@ -37,26 +37,26 @@ _ = translator("add_channel")
                      custom_filters.is_admin)
 async def add_channel(client: Client, message: Message):
     if ' ' not in message.text:
-        return await message.reply_text(_("usage", locale=message.from_user.language_code))
+        return await message.reply_text(_("usage", locale=getattr(message.from_user, "language_code", None)))
 
     channel_as_text = message.text.split(' ')[1]
 
     try:
         channel: Union[Chat, ChatPreview] = await client.get_chat(channel_as_text)
     except RPCError:
-        return await message.reply_text(_("unexisting_channel", locale=message.from_user.language_code))
+        return await message.reply_text(_("unexisting_channel", locale=getattr(message.from_user, "language_code", None)))
 
     if channel.type != "channel":
-        return await message.reply_text(_("not_a_channel", locale=message.from_user.language_code))
+        return await message.reply_text(_("not_a_channel", locale=getattr(message.from_user, "language_code", None)))
 
     try:
         channel_admins: Iterable[ChatMember] = filter(lambda m: not (m.user.is_deleted or m.user.is_bot),
                                                       await channel.get_members(filter=Filters.ADMINISTRATORS))
     except RPCError:
-        return await message.reply_text(_("not_an_admin", locale=message.from_user.language_code))
+        return await message.reply_text(_("not_an_admin", locale=getattr(message.from_user, "language_code", None)))
 
     if channels.find_one({"channel_id": channel.id}):
-        return await message.reply_text(_("already_in_list", locale=message.from_user.language_code))
+        return await message.reply_text(_("already_in_list", locale=getattr(message.from_user, "language_code", None)))
 
     channels.insert_one({"channel_id": channel.id,
                          "name": channel.title,
@@ -70,5 +70,5 @@ async def add_channel(client: Client, message: Message):
                              "time_to": None
                          }})
 
-    await message.reply_text(_("successfully_added", locale=message.from_user.language_code,
+    await message.reply_text(_("successfully_added", locale=getattr(message.from_user, "language_code", None),
                                name=escape(channel.title), id=channel.id))
