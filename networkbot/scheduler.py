@@ -17,14 +17,17 @@
 # along with tmnetbot.  If not, see <https://www.gnu.org/licenses/>.
 
 import asyncio
+import os
+import sys
 from datetime import datetime as dt, time as t, timedelta
 from threading import Timer, Lock, Thread
 from typing import Dict, Union, List
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
 import pymongo
 from pyrogram.errors import RPCError
 from pyrogram.types import Message, InlineKeyboardMarkup as Keyboard, InlineKeyboardButton as Button
-
 from config import config
 from .internationalization import translator
 from .mongo import options, channels
@@ -32,7 +35,6 @@ from .network import network
 from .telegram import telegram
 from .utils.time import MINUTES_PER_DAY, is_forwarding_allowed
 from .utils.users import notify
-
 
 _, _n = translator("schedule"), translator("settings", "notifications")
 
@@ -113,13 +115,13 @@ def check_and_send():
 
         try:
             reply_markup = Keyboard([])
-            msg: Union[Message, List[Message]] = telegram.get_messages(chat_id=channel_id, message_ids=message_id )
+            msg: Union[Message, List[Message]] = telegram.get_messages(chat_id=channel_id, message_ids=message_id)
             if author_format is not None and msg.author_signature and msg.from_user.username:
                 reply_markup.inline_keyboard.append([Button(author_format.format(author=msg.author_signature),
-                                                           url=f"https://t.me/{msg.from_user.username}")])
+                                                            url=f"https://t.me/{msg.from_user.username}")])
             if channel_format is not None and msg.chat.type == "channel" and msg.chat.username:
                 reply_markup.inline_keyboard.append([Button(channel_format.format(channel=msg.chat.title),
-                                                           url=f"https://t.me/{msg.chat.username}")])
+                                                            url=f"https://t.me/{msg.chat.username}")])
             else:
                 reply_markup = None
 
@@ -136,7 +138,7 @@ def check_and_send():
         sent_msg_id = (sent_message[0] if isinstance(sent_message, list) else sent_message).message_id
 
         reply_markup = lambda locale: Keyboard([[Button(_("go_to_the_message", locale=locale),
-                                                        url=f"https://t.me/c/{-channel_id + 10**12}/{sent_msg_id}")]])
+                                                        url=f"https://t.me/c/{-channel_id + 10 ** 12}/{sent_msg_id}")]])
 
         notify("successfully_forwarded", users_ids=channel.get("users_ids"), reply_markup=reply_markup)
 
