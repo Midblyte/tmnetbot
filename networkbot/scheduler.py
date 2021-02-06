@@ -113,7 +113,7 @@ def check_and_send():
 
         try:
             reply_markup = Keyboard([])
-            msg: Union[Message, List[Message]] = telegram.get_messages(channel_id=channel_id, message_ids=message_id )
+            msg: Union[Message, List[Message]] = telegram.get_messages(chat_id=channel_id, message_ids=message_id )
             if author_format is not None and msg.author_signature and msg.from_user.username:
                 reply_markup.inline_keyboard.append([Button(author_format.format(author=msg.author_signature),
                                                            url=f"https://t.me/{msg.from_user.username}")])
@@ -124,8 +124,9 @@ def check_and_send():
                 reply_markup = None
 
             sent_message: Union[Message, List[Message]] = telegram.forward_messages(
-                chat_id=network, from_chat_id=channel_id, message_ids=message_id, as_copy=bool(reply_markup),
-                reply_markup=reply_markup)
+                chat_id=network, from_chat_id=channel_id, message_ids=message_id, as_copy=bool(reply_markup))
+            if reply_markup:
+                sent_message.edit_reply_markup(reply_markup)
         except RPCError as err:  # todo: send alert
             continue
 
