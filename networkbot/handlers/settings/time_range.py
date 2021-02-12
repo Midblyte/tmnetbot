@@ -54,10 +54,10 @@ def buttons_after(user: User, *__) -> List[List[Button]]:
     return [[Button(_g("back", locale=user.language_code), args_joiner(*_BACK))]]
 
 
-def on_confirm(message: Message, user: User, *values: int) -> None:
+async def on_confirm(message: Message, user: User, *values: int) -> None:
     start, end = values
 
-    message.edit_text(_("info", locale=user.language_code, start=fmt_mins(start), end=fmt_mins(end)))
+    await message.edit_text(_("info", locale=user.language_code, start=fmt_mins(start), end=fmt_mins(end)))
 
     options_collection.find_one_and_update({}, {"$set": {"time_range_start": start, "time_range_end": end}})
 
