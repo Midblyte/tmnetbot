@@ -138,7 +138,7 @@ def check_and_send():
         sent_msg_id = (sent_message[0] if isinstance(sent_message, list) else sent_message).message_id
 
         reply_markup = lambda locale: Keyboard([[Button(_("go_to_the_message", locale=locale),
-                                                        url=f"https://t.me/c/{-channel_id + 10 ** 12}/{sent_msg_id}")]])
+                                                        url=f"https://t.me/c/{channel_id + 10 ** 12}/{sent_msg_id}")]])
 
         notify("successfully_forwarded", users_ids=channel.get("users_ids"), reply_markup=reply_markup)
 
