@@ -54,6 +54,9 @@ def notify(event: Literal["successfully_scheduled", "scheduling_cancelled", "suc
     if channel_id is None and users_ids is None:
         raise ValueError('Neither "channel_id" nor "users_ids" was passed', {})
 
+    if users_ids is None:
+        users_ids = []
+
     if channel_id is not None:
         key = {
             "successfully_scheduled": "scheduling",
@@ -62,7 +65,7 @@ def notify(event: Literal["successfully_scheduled", "scheduling_cancelled", "suc
             "cooldown_ended": "cooldown"
         }[event]
 
-        users_ids = list(channels.aggregate([
+        users_ids_raws = list(channels.aggregate([
             {"$match": {"channel_id": channel_id}},
             {"$lookup": {
                 "from": "users",
@@ -72,7 +75,10 @@ def notify(event: Literal["successfully_scheduled", "scheduling_cancelled", "suc
             }},
             {"$match": {f"administrators.notifications.{key}": True}},
             {"$project": {"users_ids": "$administrators.user_id"}}
-        ]))[0].get("users_ids", [])
+        ]))
+
+        if len(users_ids_raws) > 0:
+            users_ids.extend(users_ids_raws[0].get("users_ids", []))
 
     tg_users: List[User] = safe_map_ids_to_users(users_ids)
 
