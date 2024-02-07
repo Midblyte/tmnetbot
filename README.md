@@ -126,7 +126,7 @@ Internationalization is not yet a priority, but any help is welcome.
 
 # Special thanks
 
-To [gpicc](https://about.me/GiulioPiccinno), who agreed to make it open source.
+To [atsetilam](https://github.com/atsetilam), who agreed to make it open source.
 
 
 # License
